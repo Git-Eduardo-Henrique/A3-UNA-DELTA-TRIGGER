@@ -1,0 +1,878 @@
+DELTA TRIGGER — DOCUMENTO BASE DO PROJETO
+
+1. VISÃO GERAL
+
+Delta Trigger é um RPG de texto executado no terminal, desenvolvido em Python, utilizando Programação Orientada a Objetos (POO) e organização baseada no padrão MVC.
+
+O jogador explora o mundo de Aethoria, visita cidades, enfrenta inimigos, coleta itens, melhora os personagens e avança pela história até o confronto final contra Malakar, o Rei Demônio.
+
+OBJETIVO DA DEMO
+
+Demonstrar:
+- Exploração;
+- Cidades;
+- Batalhas por turnos;
+- Personagens;
+- Habilidades;
+- Inventário;
+- Equipamentos;
+- Itens;
+- Quests;
+- Chefes;
+- Progressão;
+- História;
+- Salvamento.
+
+A prioridade é criar uma demo funcional e relativamente simples, evitando sistemas desnecessariamente complexos.
+
+
+2. UNIVERSO — AETHORIA
+
+Aethoria é o mundo onde a aventura acontece.
+
+Há milhares de anos, criaturas das trevas quase destruíram o mundo. Elas eram comandadas por Malakar, o Rei Demônio.
+
+Para derrotá-lo, guerreiros e magos uniram três forças antigas:
+- Força
+- Magia
+- Espírito
+
+A união dessas forças criou um poderoso selo chamado Delta.
+
+Malakar foi derrotado e seu poder foi selado na Torre de Noxar.
+
+Durante séculos, Aethoria viveu em paz.
+
+Entretanto, uma antiga profecia dizia:
+
+"Quando as trevas despertarem novamente, o Delta também despertará."
+
+O despertar do poder do Delta ficou conhecido como:
+
+DELTA TRIGGER
+
+
+3. HISTÓRIA ATUAL
+
+Séculos depois, criaturas começam a aparecer novamente em diferentes regiões de Aethoria.
+
+- Lobos ficam agressivos;
+- Slimes aparecem nas cavernas;
+- Goblins atacam regiões próximas às cidades;
+- Criaturas das trevas começam a surgir.
+
+Os irmãos Kael e Lyra iniciam uma jornada para descobrir o que está acontecendo.
+
+Durante a aventura, eles encontram Varyn, um Mago Negro inicialmente ligado aos inimigos.
+
+Varyn começa a perceber que existe algo maior por trás dos acontecimentos e abandona as forças inimigas.
+
+Os personagens descobrem que:
+
+"O selo de Malakar está enfraquecendo."
+
+As criaturas não estão aparecendo por acaso.
+
+Malakar está retornando.
+
+
+4. PERSONAGENS PRINCIPAIS
+
+KAEL
+Classe: Guerreiro
+Função: Ataque físico / linha de frente
+
+Características:
+- Corajoso;
+- Direto;
+- Protetor;
+- Especialista em combate físico;
+- Utiliza espada;
+- Maior potencial de ataque físico.
+
+
+LYRA
+Classe: Suporte
+Função: Cura e suporte
+
+Características:
+- Inteligente;
+- Estratégica;
+- Utiliza magia de suporte;
+- Cura aliados;
+- Recupera mana;
+- Pode aumentar ataque e defesa.
+
+IMPORTANTE:
+Kael e Lyra viajam juntos durante todo o jogo.
+
+O jogador poderá escolher quem será o personagem líder, responsável por representar as decisões e aparecer como personagem principal nos diálogos.
+
+Os dois continuam fazendo parte do grupo independentemente da escolha.
+
+
+VARYN
+Classe: Mago Negro
+Função: Ataque mágico / debuffs / área
+
+Características:
+- Utiliza magia ofensiva;
+- Possui ataques mágicos;
+- Pode aplicar efeitos negativos;
+- Possui habilidades de área.
+
+História:
+Inicialmente ligado aos inimigos, Varyn descobre que Malakar está retornando e decide abandonar esse caminho.
+
+Posteriormente, entra para o grupo.
+
+
+5. ATRIBUTOS
+
+FORÇA
+Dano físico, carregar peso e quebrar objetos.
+
+DEFESA
+Resistência e redução de dano.
+
+AGILIDADE
+Velocidade, esquiva e iniciativa.
+
+INTELIGÊNCIA
+Magia e conhecimento.
+
+PERCEPÇÃO
+Detectar inimigos, armadilhas e pistas.
+
+SORTE
+Eventos aleatórios, críticos e itens.
+
+
+6. CLASSES DISPONÍVEIS
+
+Na demo inicial serão utilizados apenas Guerreiro, Suporte e Mago Negro. As demais classes ficam previstas para futuras versões.
+
+GUERREIRO
+Força: 7
+Defesa: 5
+Agilidade: 3
+Inteligência: 1
+Percepção: 2
+Sorte: 2
+Pontos para distribuir: 10
+
+LADINO
+Força: 3
+Defesa: 2
+Agilidade: 7
+Inteligência: 2
+Percepção: 4
+Sorte: 2
+Pontos para distribuir: 10
+
+MAGO
+Força: 1
+Defesa: 2
+Agilidade: 3
+Inteligência: 8
+Percepção: 4
+Sorte: 2
+Pontos para distribuir: 10
+
+ARQUEIRO
+Força: 3
+Defesa: 2
+Agilidade: 7
+Inteligência: 2
+Percepção: 5
+Sorte: 1
+Pontos para distribuir: 10
+
+PALADINO
+Força: 5
+Defesa: 7
+Agilidade: 2
+Inteligência: 2
+Percepção: 2
+Sorte: 2
+Pontos para distribuir: 10
+
+BERSERKER
+Força: 9
+Defesa: 4
+Agilidade: 4
+Inteligência: 1
+Percepção: 1
+Sorte: 1
+Pontos para distribuir: 10
+
+
+7. ESTRUTURA DA AVENTURA
+
+INÍCIO
+  |
+ESCOLHA DO LÍDER
+  |
+TUTORIAL
+  |
+FLORESTA DOS LOBOS
+  |
+ELDORIA
+  |
+CAVERNA DOS SLIMES
+  |
+VALDRIN
+  |
+CAVERNA DOS GOBLINS
+  |
+LUNARIS
+  |
+NINHO DAS ARANHAS
+  |
+MORTHEN
+  |
+CRIPTA DOS ESQUELETOS
+  |
+NOCTHAR
+  |
+COVIL DOS MORCEGOS
+  |
+TORRE DE NOXAR
+  |
+MALAKAR
+
+
+8. CIDADES
+
+ELDORIA
+Cidade inicial dos protagonistas.
+
+VALDRIN
+Cidade comercial com equipamentos melhores.
+
+LUNARIS
+Cidade próxima de regiões mágicas e ligada à história de Varyn.
+
+MORTHEN
+Cidade sombria próxima da Cripta dos Esqueletos.
+
+NOCTHAR
+Última cidade antes da Torre de Noxar.
+
+Cada cidade terá:
+
+LOJA
+- Poções;
+- Armas;
+- Armaduras.
+
+INN
+- Recupera vida;
+- Recupera mana.
+
+TAVERNA
+- Diálogos;
+- Informações;
+- Quests;
+- Informações sobre a história.
+
+
+9. LOCAIS E CHEFES
+
+Floresta dos Lobos
+Chefe: Fenrok — Lobo Alfa
+
+Caverna dos Slimes
+Chefe: Gellor — Rei Slime
+
+Caverna dos Goblins
+Chefe: Morgra — Rainha Goblin
+
+Ninho das Aranhas
+Chefe: Aracne — Dona Aranha
+
+Cripta dos Esqueletos
+Chefe: Sir Mordran — Cavaleiro Sem Cabeça
+
+Covil dos Morcegos
+Chefe: Drácula — Senhor da Noite
+
+Torre de Noxar
+Chefe final: Malakar — Rei Demônio
+
+
+10. TORRE DE NOXAR
+
+A parte final da demo será a Torre de Noxar.
+
+A torre terá 5 andares e funcionará como a última área antes do confronto com Malakar.
+
+Nocthar
+  |
+Torre de Noxar
+  |
+Andar 1
+  |
+Andar 2
+  |
+Andar 3
+  |
+Andar 4
+  |
+Andar 5
+  |
+Malakar
+
+
+11. SISTEMA DE BATALHA
+
+O combate será por turnos, inspirado em jogos como Pokémon.
+
+Exemplo:
+
+========================
+        BATALHA
+========================
+
+KAEL
+Vida: 120/120
+Mana: 30/30
+
+1 - Atacar
+2 - Defender
+3 - Especial
+4 - Item
+5 - Fugir
+
+AÇÕES
+
+1 - ATACAR
+Executa um ataque físico normal.
+
+2 - DEFENDER
+Reduz o dano recebido durante o turno.
+
+3 - ESPECIAL
+Utiliza uma habilidade que consome mana.
+
+4 - ITEM
+Permite utilizar itens do inventário.
+
+5 - FUGIR
+Permite tentar escapar de batalhas comuns.
+
+Chefes não poderão ser evitados por fuga.
+
+A Agilidade poderá influenciar a ordem das ações.
+
+
+12. FLUXO DE BATALHA
+
+Início da batalha
+      |
+Definir ordem dos personagens
+      |
+Jogador escolhe ação
+      |
+Personagem executa ação
+      |
+Inimigos executam ações
+      |
+Verificar vida
+      |
+Batalha terminou?
+   /        NÃO       SIM
+ |          |
+Próximo    Vitória/
+turno      derrota
+
+
+13. HABILIDADES
+
+Cada personagem terá inicialmente 3 habilidades especiais.
+
+KAEL — GUERREIRO
+- Golpe Poderoso
+- Corte Duplo
+- Investida
+
+LYRA — SUPORTE
+- Cura
+- Recuperar Mana
+- Proteção
+
+VARYN — MAGO NEGRO
+- Bola Sombria
+- Raio Sombrio
+- Explosão Negra
+
+Cada habilidade terá:
+- Nome;
+- Efeito;
+- Dano, quando aplicável;
+- Custo de mana.
+
+
+14. VIDA E MANA
+
+Cada personagem terá:
+- Vida máxima;
+- Vida atual;
+- Mana máxima;
+- Mana atual.
+
+Durante a batalha:
+- Ataques reduzem vida;
+- Habilidades consomem mana;
+- Poções recuperam recursos;
+- Defender reduz dano.
+
+No INN:
+- Vida é recuperada;
+- Mana é recuperada.
+
+
+15. INVENTÁRIO
+
+Categorias principais:
+
+POÇÕES
+- Poção de Cura;
+- Poção de Mana;
+- Outras poções simples.
+
+ARMAS
+Aumentam principalmente o ataque.
+
+ARMADURAS
+Aumentam principalmente a defesa.
+
+A demo não terá dezenas de equipamentos. O objetivo é demonstrar o funcionamento do inventário e equipamentos.
+
+
+16. EQUIPAMENTOS DE CHEFES
+
+Os chefes poderão deixar equipamentos especiais.
+
+Exemplos:
+
+Fenrok — Lobo Alfa
+-> Armadura de Pele
+
+Rainha Goblin
+-> Cajado Goblin
+
+Os equipamentos dos chefes serão melhores que os equipamentos comuns.
+
+
+17. BAÚS
+
+As cavernas terão baús.
+
+Os conteúdos serão pré-definidos, evitando a necessidade de criar inicialmente um sistema complexo de geração aleatória.
+
+Exemplo:
+
+========================
+      BAÚ ENCONTRADO
+========================
+
+Você encontrou:
+
+Poção de Cura x2
+
+Algumas regiões poderão possuir itens melhores.
+
+
+18. INIMIGOS
+
+Cada região terá inimigos próprios.
+
+FLORESTA
+- Lobo;
+- Lobo Alfa;
+- Fenrok.
+
+CAVERNA DOS SLIMES
+- Slime;
+- Slime Azul;
+- Gellor.
+
+CAVERNA DOS GOBLINS
+- Goblin;
+- Goblin Guerreiro;
+- Morgra.
+
+As demais regiões seguirão o mesmo modelo.
+
+Cada inimigo possuirá:
+- Nome;
+- Vida;
+- Ataque;
+- Defesa;
+- Velocidade;
+- Habilidades;
+- Experiência;
+- Drop.
+
+
+19. PROGRESSÃO
+
+Explorar
+  |
+Enfrentar inimigos
+  |
+Ganhar experiência
+  |
+Conseguir itens/equipamentos
+  |
+Ficar mais forte
+  |
+Enfrentar chefe
+  |
+Avançar para próxima região
+
+
+20. ARQUIVOS EXTERNOS
+
+Os dados do jogo serão separados em arquivos .txt.
+
+data/
+|
+|-- items.txt
+|-- monstros.txt
+|-- classes.txt
+|-- textos.txt
+|-- save.txt
+
+
+items.txt
+Itens, armas, armaduras e equipamentos especiais.
+
+monstros.txt
+Inimigos e seus atributos, habilidades, experiência e drops.
+
+classes.txt
+Classes, atributos, habilidades e custos de mana.
+
+textos.txt
+Diálogos, descrições, mensagens, quests, história e eventos.
+
+save.txt
+Dados necessários para continuar o jogo salvo.
+
+
+21. POO — PROGRAMAÇÃO ORIENTADA A OBJETOS
+
+O jogo será dividido em objetos que representam os elementos do RPG.
+
+Principais classes:
+- Personagem;
+- Inimigo;
+- Item;
+- Arma;
+- Armadura;
+- Habilidade;
+- Inventario;
+- Batalha;
+- Cidade;
+- Caverna;
+- Jogo.
+
+Exemplo de atributos de Personagem:
+- nome;
+- vida;
+- mana;
+- ataque;
+- defesa;
+- velocidade.
+
+Exemplo de comportamentos:
+- atacar();
+- defender();
+- usar_habilidade();
+- usar_item();
+- receber_dano().
+
+
+22. HERANÇA
+
+Personagem
+|
+|-- Guerreiro
+|-- Suporte
+|-- MagoNegro
+
+Cenario
+|
+|-- Cidade
+|-- Campo
+|-- Caverna
+
+A estrutura permite aplicar:
+- Herança;
+- Encapsulamento;
+- Abstração;
+- Polimorfismo.
+
+
+23. MVC
+
+MODEL
+Responsável pelos dados e regras do jogo.
+
+Exemplos:
+- Personagem;
+- Guerreiro;
+- Suporte;
+- MagoNegro;
+- Inimigo;
+- Item;
+- Habilidade;
+- Inventario;
+- Batalha;
+- Cenario.
+
+VIEW
+Responsável pelo que aparece no terminal.
+
+Exemplos:
+- MenuView;
+- BatalhaView;
+- CidadeView;
+- ExploracaoView.
+
+CONTROLLER
+Responsável por receber as escolhas do jogador e controlar o fluxo.
+
+Exemplos:
+- JogoController;
+- BatalhaController;
+- CidadeController;
+- InventarioController.
+
+
+24. FLUXO MVC
+
+JOGADOR
+   |
+VIEW
+   |
+CONTROLLER
+   |
+MODEL
+   |
+Personagem.atacar()
+   |
+Inimigo.receber_dano()
+   |
+CONTROLLER
+   |
+VIEW
+   |
+JOGADOR
+
+A View mostra as informações.
+O Controller interpreta as escolhas.
+O Model executa as regras do jogo.
+
+O Model não deve ser responsável por imprimir menus no terminal.
+
+
+25. ESTRUTURA DO PROJETO EM PYTHON
+
+delta_trigger/
+|
+|-- main.py
+|
+|-- model/
+|   |-- __init__.py
+|   |-- personagem.py
+|   |-- guerreiro.py
+|   |-- suporte.py
+|   |-- mago_negro.py
+|   |-- inimigo.py
+|   |-- item.py
+|   |-- arma.py
+|   |-- armadura.py
+|   |-- habilidade.py
+|   |-- inventario.py
+|   |-- batalha.py
+|   |-- cenario.py
+|
+|-- view/
+|   |-- __init__.py
+|   |-- menu_view.py
+|   |-- batalha_view.py
+|   |-- cidade_view.py
+|   |-- exploracao_view.py
+|
+|-- controller/
+|   |-- __init__.py
+|   |-- jogo_controller.py
+|   |-- batalha_controller.py
+|   |-- cidade_controller.py
+|   |-- inventario_controller.py
+|
+|-- util/
+|   |-- __init__.py
+|   |-- arquivo_service.py
+|
+|-- data/
+    |-- items.txt
+    |-- monstros.txt
+    |-- classes.txt
+    |-- textos.txt
+    |-- save.txt
+
+
+26. RESPONSABILIDADE DOS PRINCIPAIS ARQUIVOS
+
+main.py
+Ponto de entrada do programa. Inicia o jogo e o Controller.
+
+personagem.py
+Classe base dos personagens.
+
+guerreiro.py
+Características e comportamentos específicos de Kael.
+
+suporte.py
+Características e comportamentos específicos de Lyra.
+
+mago_negro.py
+Características e comportamentos específicos de Varyn.
+
+inimigo.py
+Comportamento dos inimigos.
+
+batalha.py
+Regras gerais do combate.
+
+inventario.py
+Controle de itens e equipamentos.
+
+habilidade.py
+Representação das habilidades especiais.
+
+arquivo_service.py
+Leitura e interpretação dos arquivos .txt.
+
+
+27. FLUXO GERAL DO PROGRAMA
+
+main.py
+  |
+JogoController
+  |
+Menu inicial
+  |
+Escolha do líder
+  |
+Tutorial
+  |
+Exploração
+  |
+Cidade
+  |
+Exploração
+  |
+Batalha
+  |
+Recompensas
+  |
+Próxima região
+  |
+...
+  |
+Torre de Noxar
+  |
+Malakar
+  |
+Final da demo
+
+
+28. ESCOPO DA PRIMEIRA VERSÃO
+
+PERSONAGENS
+- Kael;
+- Lyra;
+- Varyn.
+
+SISTEMAS
+- Menu;
+- Exploração;
+- Cidades;
+- Loja;
+- Inn;
+- Taverna;
+- Inventário;
+- Equipamentos;
+- Batalha por turnos;
+- Habilidades;
+- Experiência;
+- Chefes;
+- Baús;
+- Quests simples;
+- Salvamento;
+- Leitura de arquivos .txt.
+
+CONTEÚDO
+- 5 cavernas/regiões;
+- 5 cidades;
+- Torre com 5 andares;
+- 6 chefes intermediários;
+- 1 chefe final;
+- Inimigos comuns;
+- Itens;
+- Equipamentos.
+
+
+29. O QUE NÃO SERÁ PRIORIDADE
+
+Para evitar atrasos:
+
+- Multiplayer;
+- Gráficos;
+- Interface gráfica;
+- Grande quantidade de classes;
+- Sistema complexo de crafting;
+- Geração procedural;
+- IA avançada;
+- Centenas de itens;
+- Árvore de habilidades complexa;
+- Mundo aberto.
+
+A prioridade é uma demo funcional e organizada.
+
+
+30. DIRETRIZ PRINCIPAL DO GRUPO
+
+Não tentar fazer um RPG gigantesco.
+
+A estrutura deve ser construída de forma reutilizável:
+
+MESMA ESTRUTURA + NOVOS DADOS = NOVAS REGIÕES
+
+O código de batalha, inventário, exploração e personagens deve ser reutilizado.
+
+Para criar uma nova região, o ideal é alterar principalmente:
+- Dados dos inimigos;
+- Itens;
+- Textos;
+- Eventos;
+- Chefe.
+
+
+31. RESUMO OFICIAL DO PROJETO
+
+Delta Trigger é um RPG de texto desenvolvido em Python e executado no terminal. O jogo utiliza Programação Orientada a Objetos e organização baseada no padrão MVC.
+
+O jogador acompanha Kael e Lyra em uma jornada pelo mundo de Aethoria, enfrentando criaturas, explorando cavernas, visitando cidades e encontrando Varyn, um Mago Negro que posteriormente se junta ao grupo.
+
+A história gira em torno do enfraquecimento do selo que mantém Malakar, o Rei Demônio, aprisionado na Torre de Noxar.
+
+A demo apresenta exploração, batalhas por turnos, habilidades, inventário, equipamentos, quests, progressão, chefes e sistema de salvamento.
+
+OBJETIVO FINAL:
+Criar uma demo funcional, organizada e viável dentro do prazo da faculdade, utilizando Python, POO, MVC e arquivos externos para armazenamento dos dados.
