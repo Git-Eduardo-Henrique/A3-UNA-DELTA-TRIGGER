@@ -1,0 +1,8 @@
+# Chave|Texto
+INTRO_1|Ha muitos seculos, o reino de Aethoria enfrentou uma grande ameaca.
+INTRO_2|Malakar, o Rei Demônio, liderou criaturas contra o reino.
+INTRO_3|Tres grandes forcas foram reunidas: Forca, Magia e Espirito.
+INTRO_4|Essas forcas criaram o Delta, um selo capaz de prender Malakar na Torre de Noxar.
+INTRO_5|Seculos de paz se passaram. Entao, criaturas voltaram a surgir e uma energia estranha comecou a se espalhar.
+INTRO_6|O poder do Delta comecou a despertar. Esse despertar ficou conhecido como Delta Trigger.
+INTRO_7|Em uma pequena regiao de Aethoria, os irmaos Kael e Lyra decidem investigar os acontecimentos.

@@ -1,33 +1,49 @@
 package model;
+
 import java.util.Random;
 
 public abstract class Personagem {
-    protected String nome;
-    protected int nivel = 1, vida, vidaMaxima, mana, manaMaxima;
-    protected int pontosAtributo, dinheiro, experiencia;
-    protected Atributos base;
-    protected Equipamento equipamento;
-    protected Inventario inventario = new Inventario();
+    protected final String nome;
+    protected int nivel;
+    protected int vida;
+    protected int vidaMaxima;
+    protected int mana;
+    protected int manaMaxima;
+    protected int pontosAtributo;
+    protected int dinheiro;
+    protected int experiencia;
+    protected final Atributos base;
+    protected Equipamento armaEquipada;
+    protected Equipamento armaduraEquipada;
+    protected Equipamento botasEquipadas;
+    protected final Inventario inventario = new Inventario();
     protected boolean defendendo;
-    protected Random random = new Random();
+    protected final Random random = new Random();
 
     public Personagem(String nome, int hp, int mp, Atributos atributos, int dinheiro) {
-        this.nome = nome; vidaMaxima = hp; vida = hp; manaMaxima = mp; mana = mp;
-        base = atributos; this.dinheiro = dinheiro;
+        this.nome = nome;
+        this.nivel = 1;
+        this.vidaMaxima = hp;
+        this.vida = hp;
+        this.manaMaxima = mp;
+        this.mana = mp;
+        this.base = atributos;
+        this.dinheiro = Math.max(0, dinheiro);
     }
 
-    public abstract void habilidade(Personagem[] grupo, Inimigo inimigo);
+    public abstract boolean habilidade(Personagem[] grupo, Inimigo[] inimigos);
 
-    public int getForca() { return base.getForca() + bonus(1); }
-    public int getDefesa() { return base.getDefesa() + bonus(2); }
-    public int getInteligencia() { return base.getInteligencia() + bonus(3); }
-    public int getResistencia() { return base.getResistencia() + bonus(4); }
-    public int getVelocidade() { return base.getVelocidade() + bonus(5); }
-    public int getSorte() { return base.getSorte() + bonus(6); }
+    private int bonus(int atributo) {
+        int total = 0;
+        total += bonusEquipamento(armaEquipada, atributo);
+        total += bonusEquipamento(armaduraEquipada, atributo);
+        total += bonusEquipamento(botasEquipadas, atributo);
+        return total;
+    }
 
-    private int bonus(int tipo) {
+    private int bonusEquipamento(Equipamento equipamento, int atributo) {
         if (equipamento == null) return 0;
-        switch (tipo) {
+        switch (atributo) {
             case 1: return equipamento.getForca();
             case 2: return equipamento.getDefesa();
             case 3: return equipamento.getInteligencia();
@@ -38,43 +54,82 @@ public abstract class Personagem {
         }
     }
 
+    public int getForca() { return base.getForca() + bonus(1); }
+    public int getDefesa() { return base.getDefesa() + bonus(2); }
+    public int getInteligencia() { return base.getInteligencia() + bonus(3); }
+    public int getResistencia() { return base.getResistencia() + bonus(4); }
+    public int getVelocidade() { return base.getVelocidade() + bonus(5); }
+    public int getSorte() { return base.getSorte() + bonus(6); }
+
     public int atacar() {
-        return Math.max(1, getForca() * 2 + random.nextInt(7) - 3);
+        int dano = getForca() * 2 + random.nextInt(5) - 2;
+        if (random.nextInt(100) < Math.min(40, 5 + getSorte() * 2)) dano += Math.max(1, getForca() / 2);
+        return Math.max(1, dano);
     }
 
     public int receberDano(int dano) {
-        int reducao = getDefesa() / 3 + getResistencia() / 4;
-        if (defendendo) { reducao += 5; defendendo = false; }
-        int finalDano = Math.max(1, dano - reducao);
-        vida = Math.max(0, vida - finalDano);
-        return finalDano;
+        int reducao = getDefesa() / 2 + getResistencia() / 4;
+        if (defendendo) {
+            reducao += 5;
+            defendendo = false;
+        }
+        int danoFinal = Math.max(1, dano - reducao);
+        vida = Math.max(0, vida - danoFinal);
+        return danoFinal;
     }
 
-    public void defender() { defendendo = true; System.out.println(nome + " esta se defendendo."); }
-    public boolean usarMana(int custo) {
-        if (mana < custo) { System.out.println("Mana insuficiente."); return false; }
-        mana -= custo; return true;
+    public void defender() {
+        defendendo = true;
+        System.out.println(Cores.aviso(nome + " assumiu uma postura defensiva para o proximo ataque."));
     }
-    public void curar(int valor) { vida = Math.min(vidaMaxima, vida + valor); }
-    public void curarMana(int valor) { mana = Math.min(manaMaxima, mana + valor); }
-    public void recuperarTudo() { vida = vidaMaxima; mana = manaMaxima; }
+
+    public boolean usarMana(int custo) {
+        if (custo < 0 || mana < custo) return false;
+        mana -= custo;
+        return true;
+    }
+
+    public void curar(int valor) {
+        if (valor > 0) vida = Math.min(vidaMaxima, vida + valor);
+    }
+
+    public void curarMana(int valor) {
+        if (valor > 0) mana = Math.min(manaMaxima, mana + valor);
+    }
+
+    public void recuperarTudo() {
+        vida = vidaMaxima;
+        mana = manaMaxima;
+        defendendo = false;
+    }
 
     public void subirNivel() {
-        nivel++; pontosAtributo += 3; vidaMaxima += 10; manaMaxima += 5;
+        nivel++;
+        pontosAtributo += 3;
+        vidaMaxima += 10;
+        manaMaxima += 5;
         recuperarTudo();
-        System.out.println("\n*** " + nome + " chegou ao nivel " + nivel + "! ***");
-        System.out.println("Recebeu 3 pontos de atributo.");
     }
 
-    public void distribuirPonto(int opcao) {
-        if (pontosAtributo <= 0) return;
-        if (opcao < 1 || opcao > 6) { System.out.println("Opcao invalida."); return; }
-        base.aumentar(opcao); pontosAtributo--;
+    public boolean distribuirPonto(int opcao) {
+        if (pontosAtributo <= 0) return false;
+        if (!base.aumentar(opcao)) return false;
+        pontosAtributo--;
+        return true;
     }
 
-    public void equipar(Equipamento e) {
-        equipamento = e;
-        System.out.println(nome + " equipou " + e.getNome() + ".");
+    public void limparEquipamentosEquipados() {
+        armaEquipada = null;
+        armaduraEquipada = null;
+        botasEquipadas = null;
+    }
+
+    public void equipar(Equipamento equipamento) {
+        if (equipamento == null) return;
+        String tipo = equipamento.getTipo();
+        if ("Arma".equalsIgnoreCase(tipo)) armaEquipada = equipamento;
+        else if ("Armadura".equalsIgnoreCase(tipo)) armaduraEquipada = equipamento;
+        else if ("Botas".equalsIgnoreCase(tipo)) botasEquipadas = equipamento;
     }
 
     public boolean vivo() { return vida > 0; }
@@ -85,21 +140,40 @@ public abstract class Personagem {
     public int getManaMaxima() { return manaMaxima; }
     public int getNivel() { return nivel; }
     public int getDinheiro() { return dinheiro; }
-    public void adicionarDinheiro(int valor) { dinheiro += valor; }
-    public boolean gastarDinheiro(int valor) {
-        if (dinheiro < valor) return false;
-        dinheiro -= valor; return true;
-    }
-    public Inventario getInventario() { return inventario; }
-    public Equipamento getEquipamento() { return equipamento; }
     public int getPontosAtributo() { return pontosAtributo; }
+    public int getExperiencia() { return experiencia; }
+    public Inventario getInventario() { return inventario; }
+    public Equipamento getArmaEquipada() { return armaEquipada; }
+    public Equipamento getArmaduraEquipada() { return armaduraEquipada; }
+    public Equipamento getBotasEquipadas() { return botasEquipadas; }
+    public Atributos getAtributosBase() { return base; }
+
+    public void adicionarDinheiro(int valor) { if (valor > 0) dinheiro += valor; }
+    public boolean gastarDinheiro(int valor) {
+        if (valor < 0 || dinheiro < valor) return false;
+        dinheiro -= valor;
+        return true;
+    }
+
+    public void definirNivel(int valor) { nivel = Math.max(1, valor); }
+    public void definirVidaMaxima(int valor) { vidaMaxima = Math.max(1, valor); }
+    public void definirVida(int valor) { vida = Math.max(0, Math.min(vidaMaxima, valor)); }
+    public void definirManaMaxima(int valor) { manaMaxima = Math.max(0, valor); }
+    public void definirMana(int valor) { mana = Math.max(0, Math.min(manaMaxima, valor)); }
+    public void definirDinheiro(int valor) { dinheiro = Math.max(0, valor); }
+    public void definirPontosAtributo(int valor) { pontosAtributo = Math.max(0, valor); }
+    public void definirExperiencia(int valor) { experiencia = Math.max(0, valor); }
 
     public void status() {
-        System.out.println("\n=== " + nome.toUpperCase() + " ===");
-        System.out.println("Nivel " + nivel + " | HP " + vida + "/" + vidaMaxima
-                + " | Mana " + mana + "/" + manaMaxima + " | $" + dinheiro);
+        String nomeColorido = nome.equals("Kael") ? Cores.kael(nome.toUpperCase())
+                : nome.equals("Lyra") ? Cores.lyra(nome.toUpperCase()) : Cores.elyra(nome.toUpperCase());
+        System.out.println("\n=== " + nomeColorido + " ===");
+        System.out.println("Nivel: " + nivel + " | HP: " + vida + "/" + vidaMaxima
+                + " | Mana: " + mana + "/" + manaMaxima + " | $" + dinheiro);
         base.mostrar();
-        System.out.println("Equipado: " + (equipamento == null ? "nenhum" : equipamento.getNome()));
-        System.out.println("Pontos: " + pontosAtributo);
+        System.out.println("Arma: " + (armaEquipada == null ? "nenhuma" : armaEquipada.getNome()));
+        System.out.println("Armadura: " + (armaduraEquipada == null ? "nenhuma" : armaduraEquipada.getNome()));
+        System.out.println("Botas: " + (botasEquipadas == null ? "nenhuma" : botasEquipadas.getNome()));
+        if (pontosAtributo > 0) System.out.println(Cores.aviso("Pontos de atributo disponiveis: " + pontosAtributo));
     }
 }

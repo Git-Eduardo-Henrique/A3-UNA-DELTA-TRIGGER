@@ -1,112 +1,203 @@
 package view;
-import model.*;
+
+import model.Cores;
+import model.Entrada;
+import model.Equipamento;
+import model.Item;
+import model.Personagem;
 import util.SaveService;
-import java.util.List;
 
 public class CidadeView {
-    public static void abrir(Personagem[] grupo) {
-        boolean sair = false;
-        while (!sair) {
-            System.out.println("\n========== ELDORIA ==========");
-            System.out.println("1 - Loja");
-            System.out.println("2 - Vender item");
-            System.out.println("3 - Equipar");
-            System.out.println("4 - Estalagem");
-            System.out.println("5 - Status");
-            System.out.println("6 - Inventario");
-            System.out.println("7 - Distribuir pontos");
-            System.out.println("8 - Salvar");
-            System.out.println("9 - Continuar");
-
+    public static int abrir(Personagem[] grupo, String lider, boolean elyraEntrou) {
+        while (true) {
+            System.out.println("\n========================================");
+            System.out.println("              ELDORIA");
+            System.out.println("========================================");
+            System.out.println("Lider: " + lider);
+            System.out.println("\n1 - Pousada");
+            System.out.println("2 - Loja");
+            System.out.println("3 - Taverna");
+            System.out.println("4 - Ver equipe");
+            System.out.println("5 - Ver inventario");
             int op = Entrada.lerInt("Escolha: ");
-            switch (op) {
-                case 1: loja(grupo); break;
-                case 2: vender(grupo); break;
-                case 3: equipar(grupo); break;
-                case 4:
-                    for (Personagem p : grupo) if (p.vivo()) p.recuperarTudo();
-                    System.out.println("O grupo descansou na estalagem.");
-                    break;
-                case 5:
-                    for (Personagem p : grupo) p.status();
-                    break;
-                case 6:
-                    for (Personagem p : grupo) p.getInventario().mostrar();
-                    break;
-                case 7: distribuir(grupo); break;
-                case 8: SaveService.salvar(grupo); break;
-                case 9: sair = true; break;
-                default: System.out.println("Opcao invalida.");
+
+            if (op == 1) pousada(grupo, lider, elyraEntrou);
+            else if (op == 2) loja(grupo);
+            else if (op == 3) {
+                if (!elyraEntrou) return 1;
+                System.out.println(Cores.aviso("Elyra ja foi encontrada na taverna."));
+            } else if (op == 4) equipe(grupo);
+            else if (op == 5) inventario(grupo);
+            else System.out.println(Cores.aviso("Opcao invalida. Escolha uma opcao do menu."));
+        }
+    }
+
+    private static void pousada(Personagem[] grupo, String lider, boolean elyraEntrou) {
+        while (true) {
+            System.out.println("\n=== POUSADA ===");
+            System.out.println("1 - Descansar");
+            System.out.println("2 - Salvar jogo");
+            System.out.println("0 - Voltar");
+            int op = Entrada.lerInt("Escolha: ");
+            if (op == 0) return;
+            if (op == 1) {
+                for (Personagem p : grupo) if (p.vivo()) p.recuperarTudo();
+                System.out.println(Cores.sucesso("O grupo descansou. HP e Mana foram restaurados."));
+            } else if (op == 2) {
+                boolean ok = SaveService.salvar(grupo, lider, "ELDORIA", 5, elyraEntrou);
+                System.out.println(ok ? Cores.sucesso("Jogo salvo com sucesso! (save.txt criptografado)")
+                        : Cores.vermelho("Nao foi possivel salvar o jogo."));
+            } else {
+                System.out.println(Cores.aviso("Opcao invalida. Escolha 1, 2 ou 0."));
             }
         }
     }
 
     private static void loja(Personagem[] grupo) {
-        Equipamento espada = new Equipamento("Espada de Ferro", "Arma", 35, 2,0,0,0,0,0);
-        Equipamento armadura = new Equipamento("Armadura de Couro", "Armadura", 30,0,2,0,1,0,0);
-        Equipamento cajado = new Equipamento("Cajado Simples", "Arma", 35,0,0,2,0,0,0);
-        Item hp = new Item("Pocao de Vida", "Pocao", 15,30,0);
-        Item mp = new Item("Pocao de Mana", "Pocao", 18,0,20);
+        while (true) {
+            System.out.println("\n=== LOJA DE ELDORIA ===");
+            System.out.println("1 - Comprar");
+            System.out.println("2 - Vender itens");
+            System.out.println("3 - Vender tudo");
+            System.out.println("4 - Equipar equipamento");
+            System.out.println("0 - Voltar");
+            int op = Entrada.lerInt("Escolha: ");
+            if (op == 0) return;
+            if (op == 1) comprar(grupo);
+            else if (op == 2) vender(grupo, false);
+            else if (op == 3) vender(grupo, true);
+            else if (op == 4) equipar(grupo);
+            else System.out.println(Cores.aviso("Opcao invalida. Escolha 1 a 4 ou 0."));
+        }
+    }
 
-        System.out.println("\n1 - Espada ($35)  2 - Armadura ($30)  3 - Cajado ($35)");
-        System.out.println("4 - Pocao de Vida ($15)  5 - Pocao de Mana ($18)");
-        int produto = Entrada.lerInt("Produto: ");
-        int personagem = Entrada.lerInt("1 - Kael | 2 - Lyra: ");
-        if (personagem < 1 || personagem > 2) return;
-        Personagem p = grupo[personagem - 1];
-
-        if (produto == 1) comprarEquipamento(p, espada);
-        else if (produto == 2) comprarEquipamento(p, armadura);
-        else if (produto == 3) comprarEquipamento(p, cajado);
-        else if (produto == 4) comprarItem(p, hp);
-        else if (produto == 5) comprarItem(p, mp);
+    private static void comprar(Personagem[] grupo) {
+        Personagem p = escolherPersonagem(grupo);
+        if (p == null) return;
+        while (true) {
+            System.out.println("\nDinheiro de " + p.getNome() + ": $" + p.getDinheiro());
+            System.out.println("1 - Espada de Ferro [Arma] $35 | F+2");
+            System.out.println("2 - Armadura de Couro [Armadura] $30 | D+2 R+1");
+            System.out.println("3 - Cajado Simples [Arma] $35 | I+2");
+            System.out.println("4 - Pocao de Vida [Pocao] $15 | +30 HP");
+            System.out.println("5 - Pocao de Mana [Pocao] $18 | +20 Mana");
+            System.out.println("0 - Voltar");
+            int produto = Entrada.lerInt("Produto: ");
+            if (produto == 0) return;
+            if (produto == 1) { comprarEquipamento(p, new Equipamento("Espada de Ferro", "Arma", 35, 2, 0, 0, 0, 0, 0)); return; }
+            if (produto == 2) { comprarEquipamento(p, new Equipamento("Armadura de Couro", "Armadura", 30, 0, 2, 0, 1, 0, 0)); return; }
+            if (produto == 3) { comprarEquipamento(p, new Equipamento("Cajado Simples", "Arma", 35, 0, 0, 2, 0, 0, 0)); return; }
+            if (produto == 4) { comprarItem(p, new Item("Pocao de Vida", "Pocao", 15, 30, 0)); return; }
+            if (produto == 5) { comprarItem(p, new Item("Pocao de Mana", "Pocao", 18, 0, 20)); return; }
+            System.out.println(Cores.aviso("Produto invalido."));
+        }
     }
 
     private static void comprarEquipamento(Personagem p, Equipamento e) {
-        if (!p.gastarDinheiro(e.getPreco())) { System.out.println("Dinheiro insuficiente."); return; }
+        if (!p.gastarDinheiro(e.getPreco())) {
+            System.out.println(Cores.aviso("Dinheiro insuficiente. Voce possui $" + p.getDinheiro() + "."));
+            return;
+        }
         p.getInventario().adicionarEquipamento(e);
-        p.equipar(e);
+        System.out.println(Cores.sucesso("Comprado: " + e.getNome() + ". Guardado no inventario."));
     }
 
-    private static void comprarItem(Personagem p, Item i) {
-        if (!p.gastarDinheiro(i.getPreco())) { System.out.println("Dinheiro insuficiente."); return; }
-        p.getInventario().adicionarItem(i);
-        System.out.println("Comprado: " + i.getNome());
+    private static void comprarItem(Personagem p, Item item) {
+        if (!p.gastarDinheiro(item.getPreco())) {
+            System.out.println(Cores.aviso("Dinheiro insuficiente. Voce possui $" + p.getDinheiro() + "."));
+            return;
+        }
+        p.getInventario().adicionarItem(item);
+        System.out.println(Cores.sucesso("Comprado: " + item.getNome() + " x1."));
     }
 
-    private static void vender(Personagem[] grupo) {
-        int n = Entrada.lerInt("1 - Kael | 2 - Lyra: ");
-        if (n < 1 || n > 2) return;
-        Personagem p = grupo[n - 1];
-        List<Item> itens = p.getInventario().getItens();
-        if (itens.isEmpty()) { System.out.println("Nenhum item para vender."); return; }
-        for (int i = 0; i < itens.size(); i++) System.out.println((i+1) + " - " + itens.get(i).descricao());
-        int op = Entrada.lerInt("Item: ");
-        if (op < 1 || op > itens.size()) return;
-        Item item = itens.get(op - 1);
-        p.adicionarDinheiro(Math.max(1, item.getPreco()/2));
-        itens.remove(item);
-        System.out.println("Item vendido.");
+    private static void vender(Personagem[] grupo, boolean tudo) {
+        Personagem p = escolherPersonagem(grupo);
+        if (p == null) return;
+        if (p.getInventario().getItens().isEmpty()) {
+            System.out.println(Cores.aviso("Nenhum item para vender."));
+            return;
+        }
+        if (tudo) {
+            int total = 0;
+            for (Item item : p.getInventario().getItens()) total += Math.max(1, item.getPreco() / 2) * item.getQuantidade();
+            p.getInventario().getItens().clear();
+            p.adicionarDinheiro(total);
+            System.out.println(Cores.sucesso("Todos os itens vendaveis foram vendidos por $" + total + "."));
+            return;
+        }
+        while (true) {
+            System.out.println("\nItens de " + p.getNome() + ":");
+            for (int i = 0; i < p.getInventario().getItens().size(); i++) {
+                System.out.println((i + 1) + " - " + p.getInventario().getItens().get(i).descricao());
+            }
+            System.out.println("0 - Voltar");
+            int op = Entrada.lerInt("Item: ");
+            if (op == 0) return;
+            if (op < 1 || op > p.getInventario().getItens().size()) {
+                System.out.println(Cores.aviso("Item invalido."));
+                continue;
+            }
+            Item item = p.getInventario().getItens().get(op - 1);
+            int valor = Math.max(1, item.getPreco() / 2);
+            p.adicionarDinheiro(valor);
+            p.getInventario().removerUmaUnidade(item);
+            System.out.println(Cores.sucesso(item.getNome() + " vendido por $" + valor + "."));
+            return;
+        }
     }
 
     private static void equipar(Personagem[] grupo) {
-        int n = Entrada.lerInt("1 - Kael | 2 - Lyra: ");
-        if (n < 1 || n > 2) return;
-        Personagem p = grupo[n - 1];
-        List<Equipamento> lista = p.getInventario().getEquipamentos();
-        if (lista.isEmpty()) { System.out.println("Nenhum equipamento."); return; }
-        for (int i=0;i<lista.size();i++) System.out.println((i+1)+" - "+lista.get(i).descricao());
-        int op = Entrada.lerInt("Equipamento: ");
-        if (op>=1 && op<=lista.size()) p.equipar(lista.get(op-1));
+        Personagem p = escolherPersonagem(grupo);
+        if (p == null) return;
+        if (p.getInventario().getEquipamentos().isEmpty()) {
+            System.out.println(Cores.aviso("Nenhum equipamento no inventario."));
+            return;
+        }
+        while (true) {
+            System.out.println("\nEquipamentos de " + p.getNome() + ":");
+            for (int i = 0; i < p.getInventario().getEquipamentos().size(); i++) {
+                Equipamento e = p.getInventario().getEquipamentos().get(i);
+                boolean equipado = e == p.getArmaEquipada() || e == p.getArmaduraEquipada() || e == p.getBotasEquipadas();
+                System.out.println((i + 1) + " - " + e.descricao() + (equipado ? " - EQUIPADO" : ""));
+            }
+            System.out.println("0 - Voltar");
+            int op = Entrada.lerInt("Equipamento: ");
+            if (op == 0) return;
+            if (op < 1 || op > p.getInventario().getEquipamentos().size()) {
+                System.out.println(Cores.aviso("Equipamento invalido."));
+                continue;
+            }
+            Equipamento e = p.getInventario().getEquipamentos().get(op - 1);
+            p.equipar(e);
+            System.out.println(Cores.sucesso(e.getNome() + " equipado em " + p.getNome() + "."));
+            return;
+        }
     }
 
-    private static void distribuir(Personagem[] grupo) {
-        for (Personagem p : grupo) {
-            while (p.getPontosAtributo() > 0) {
-                p.status();
-                System.out.println("1 Forca | 2 Defesa | 3 Inteligencia | 4 Resistencia | 5 Velocidade | 6 Sorte");
-                p.distribuirPonto(Entrada.lerInt("Atributo para " + p.getNome() + ": "));
-            }
+    private static Personagem escolherPersonagem(Personagem[] grupo) {
+        System.out.println("\nEscolha o personagem:");
+        for (int i = 0; i < grupo.length; i++) System.out.println((i + 1) + " - " + grupo[i].getNome());
+        System.out.println("0 - Voltar");
+        int op = Entrada.lerInt("Escolha: ");
+        if (op == 0) return null;
+        if (op < 1 || op > grupo.length) {
+            System.out.println(Cores.aviso("Personagem invalido."));
+            return null;
+        }
+        return grupo[op - 1];
+    }
+
+    private static void equipe(Personagem[] grupo) {
+        for (Personagem p : grupo) p.status();
+        Entrada.enter();
+    }
+
+    private static void inventario(Personagem[] grupo) {
+        Personagem p = escolherPersonagem(grupo);
+        if (p != null) {
+            p.getInventario().mostrar(p);
+            Entrada.enter();
         }
     }
 }
