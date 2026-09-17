@@ -1,10 +1,16 @@
-# Estrutura inicial para o leitor de itens/equipamentos.
 # ITEM|Nome|Tipo|Preco|CuraHP|CuraMana
 ITEM|Pocao de Vida|Pocao|15|30|0
 ITEM|Pocao de Mana|Pocao|18|0|20
-# EQUIP|Nome|Tipo|Raridade|Preco|Forca|Defesa|Inteligencia|Resistencia|Velocidade|Sorte
-EQUIP|Espada de Ferro|Arma|Comum|35|2|0|0|0|0|0
-EQUIP|Armadura de Couro|Armadura|Comum|30|0|2|0|1|0|0
-EQUIP|Cajado Simples|Arma|Comum|35|0|0|2|0|0|0
-EQUIP|Manto da Pelagem Alfa|Armadura|Epico|0|0|3|0|1|0|1
-EQUIP|Botas da Pelagem Alfa|Botas|Raro|0|0|0|0|0|2|1
+
+# EQUIP|ID|Nome|Tipo|Raridade|ClassePermitida|Preco|Forca|Defesa|Inteligencia|Resistencia|Velocidade|Sorte
+EQUIP|ESPADA_BRONZE|Espada de Bronze|Arma|Comum|Guerreiro|45|1|0|0|0|0|0
+EQUIP|ARCO_MADEIRA_REFORCADO|Arco de Madeira Reforcado|Arma|Comum|Arqueira Arcana|40|1|0|0|0|0|0
+EQUIP|CAJADO_PINHEIRO_ORBE|Cajado de Pinheiro com Orbe|Arma|Comum|Suporte|45|0|0|1|0|0|0
+EQUIP|ARMADURA_BRONZE|Armadura de Bronze|Armadura|Comum|Guerreiro|55|0|2|0|0|0|0
+EQUIP|TRAJE_CACADORA|Traje de Cacadora|Armadura|Comum|Arqueira Arcana|45|0|0|0|0|1|0
+EQUIP|TUNICA_CURANDEIRO|Tunica do Curandeiro|Armadura|Comum|Suporte|50|0|0|0|1|0|0
+EQUIP|BOTA_BRONZE|Bota de Bronze|Botas|Comum|Todos|30|0|0|0|0|1|0
+EQUIP|COLAR_OURO_ELFICO|Colar de Ouro Elfico|Acessorio|Incomum|Todos|35|0|0|1|0|0|1
+EQUIP|BRINCO_PE_COELHO|Brinco de Pe de Coelho|Acessorio|Incomum|Todos|25|0|0|0|0|0|2
+EQUIP|MANTO_PELAGEM_ALFA|Manto da Pelagem Alfa|Armadura|Epico|Suporte|0|0|3|0|1|0|1
+EQUIP|BOTAS_PELAGEM_ALFA|Botas da Pelagem Alfa|Botas|Raro|Todos|0|0|0|0|0|2|1

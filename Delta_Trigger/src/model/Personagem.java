@@ -24,7 +24,27 @@ public abstract class Personagem {
     public void subirNivel(){nivel++;pontosAtributo+=3;vidaMaxima+=10;manaMaxima+=5;recuperarTudo();}
     public boolean distribuirPonto(int op){if(pontosAtributo<=0||!base.aumentar(op))return false;pontosAtributo--;return true;}
     public void limparEquipamentosEquipados(){armaEquipada=null;armaduraEquipada=null;botasEquipadas=null;acessorioEquipado=null;}
-    public void equipar(Equipamento e){if(e==null)return;String t=e.getTipo();if("Arma".equalsIgnoreCase(t))armaEquipada=e;else if("Armadura".equalsIgnoreCase(t))armaduraEquipada=e;else if("Botas".equalsIgnoreCase(t))botasEquipadas=e;else if("Acessorio".equalsIgnoreCase(t)||"Acessório".equalsIgnoreCase(t))acessorioEquipado=e;}
+    public boolean podeEquipar(Equipamento e){
+        if(e==null || !e.podeSerUsadoPor(this)) return false;
+        String t=e.getTipo();
+        return "Arma".equalsIgnoreCase(t)||"Armadura".equalsIgnoreCase(t)||"Botas".equalsIgnoreCase(t)||"Acessorio".equalsIgnoreCase(t)||"Acessório".equalsIgnoreCase(t);
+    }
+    public Equipamento equipamentoDoTipo(String tipo){
+        if("Arma".equalsIgnoreCase(tipo)) return armaEquipada;
+        if("Armadura".equalsIgnoreCase(tipo)) return armaduraEquipada;
+        if("Botas".equalsIgnoreCase(tipo)) return botasEquipadas;
+        if("Acessorio".equalsIgnoreCase(tipo)||"Acessório".equalsIgnoreCase(tipo)) return acessorioEquipado;
+        return null;
+    }
+    public boolean equiparDireto(Equipamento e){
+        if(!podeEquipar(e)) return false;
+        String t=e.getTipo();
+        if("Arma".equalsIgnoreCase(t)) armaEquipada=e;
+        else if("Armadura".equalsIgnoreCase(t)) armaduraEquipada=e;
+        else if("Botas".equalsIgnoreCase(t)) botasEquipadas=e;
+        else if("Acessorio".equalsIgnoreCase(t)||"Acessório".equalsIgnoreCase(t)) acessorioEquipado=e;
+        return true;
+    }
     public boolean vivo(){return vida>0;} public String getNome(){return nome;} public int getVida(){return vida;} public int getVidaMaxima(){return vidaMaxima;} public int getMana(){return mana;} public int getManaMaxima(){return manaMaxima;} public int getNivel(){return nivel;} public int getPontosAtributo(){return pontosAtributo;} public int getExperiencia(){return experiencia;} public Inventario getInventario(){return null;}
     public Equipamento getArmaEquipada(){return armaEquipada;} public Equipamento getArmaduraEquipada(){return armaduraEquipada;} public Equipamento getBotasEquipadas(){return botasEquipadas;} public Equipamento getAcessorioEquipado(){return acessorioEquipado;} public Atributos getAtributosBase(){return base;}
     public void definirNivel(int v){nivel=Math.max(1,v);} public void definirVidaMaxima(int v){vidaMaxima=Math.max(1,v);} public void definirVida(int v){vida=Math.max(0,Math.min(vidaMaxima,v));} public void definirManaMaxima(int v){manaMaxima=Math.max(0,v);} public void definirMana(int v){mana=Math.max(0,Math.min(manaMaxima,v));} public void definirPontosAtributo(int v){pontosAtributo=Math.max(0,v);} public void definirExperiencia(int v){experiencia=Math.max(0,v);}

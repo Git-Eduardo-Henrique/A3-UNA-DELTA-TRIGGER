@@ -9,3 +9,19 @@ INTRO_7|Em uma pequena regiao de Aethoria, os irmaos Kael e Lyra decidem investi
 ELDORIA_CHEGADA|Depois da floresta, as muralhas de Eldoria surgem diante do grupo.
 TAVERNA_ELDORIA|Viajantes comentam sobre criaturas estranhas perto da Caverna dos Slimes.
 FENROK_ENCONTRO|Fenrok, o protetor da alcateia, foi alterado pela energia estranha.
+
+FLORESTA_CENA|Kael e Lyra entram na Floresta dos Lobos para investigar os acontecimentos. O caminho parece tranquilo, mas algo se move entre as arvores...
+FENROK_POS|Fenrok era o protetor da alcateia. A energia estranha do Delta alterou seu comportamento, deixando uma pergunta: o que esta corrompendo a floresta?
+ELYRA_1|Uma figura surge entre as arvores, observando o grupo de longe.
+ELYRA_2|Ela se aproxima com cautela, mantendo o arco em maos, mas sem demonstrar intencao de atacar.
+ELYRA_3|Meu nome e Elyra. Sou uma das guardias desta regiao e conheco estas florestas ha muitos anos.
+ELYRA_4|Eu vi voces enfrentarem Fenrok. Ele sempre protegeu esta parte da floresta, entao ve-lo daquele jeito me preocupou.
+ELYRA_5|Nos ultimos tempos, algumas criaturas comecaram a agir de forma diferente. Ha algo errado nesta regiao, e eu quero descobrir o que esta acontecendo.
+ELYRA_6|Se voces estao seguindo esse caminho para investigar o que esta acontecendo, talvez nossos objetivos sejam os mesmos.
+ELYRA_7|Vou seguir com voces. Conheco estas terras e posso ajudar a encontrar o que esta causando essas mudancas.
+ELYRA_RECUSA|Elyra permanece em Eldoria. Ela podera ser encontrada novamente pelos rumores da taverna.
+MISSAO_ELDORIA|Mineiros de Eldoria desapareceram.
+MISSAO_ELDORIA_DESC|Alguns mineiros enviados para trabalhar nas minas de cristais nao retornaram. Os ultimos relatos indicam uma area mais profunda. A cidade precisa de alguem para descobrir o que aconteceu e, se possivel, trazer os mineiros de volta.
+MISSAO_DESTINO|Destino: Caverna dos Slimes
+SLIME_VARYN_INICIO|Um homem de manto escuro aparece na entrada da caverna. Ele observa os cristais e fala sobre uma energia estranha, mas nao revela suas verdadeiras intencoes.
+SLIME_VARYN_FIM|Depois da batalha contra Gellor, o homem retorna. Ele diz suspeitar que os slimes foram afetados pela energia dos cristais e que existe um inimigo em comum.

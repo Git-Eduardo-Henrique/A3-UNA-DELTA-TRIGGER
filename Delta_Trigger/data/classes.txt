@@ -1,6 +1,6 @@
-# Estrutura de dados das classes. A V3.2 usa classes Java para polimorfismo.
-# ID|Nome|Observacao
-GUERREIRO|Guerreiro|Ataques fisicos e defesa
-SUPORTE|Suporte|Curas e apoio
-ARQUEIRA_ARCANA|Arqueira Arcana|Ataques fisicos e magicos
-MAGO_SOMBRIO|Mago Sombrio|Magia ofensiva e debuffs (proxima implementacao)
+# ID|Nome|Observacao|Habilidades
+GUERREIRO|Guerreiro|Ataques fisicos e defesa|Ataque Bruto;Investida de Armadura;Golpe Poderoso
+SUPORTE|Suporte|Curas e apoio|Cura Individual;Cura em Grupo;Benção de Defesa
+ARQUEIRA_ARCANA|Arqueira Arcana|Ataques fisicos e magicos|Flecha Arcana;Flecha de Gelo;Flecha Perfurante
+MAGO_SOMBRIO|Mago Sombrio|Magia ofensiva e debuffs|Esfera Sombria;Maldição;Explosao Arcana
+ELFO_ARQUEIRO|Arqueira Arcana|Classe de Elyra|Flecha Arcana;Flecha de Gelo;Flecha Perfurante

@@ -15,7 +15,7 @@ public final class Cores {
     public static String normal(String s) { return CINZA + s + RESET; }
     public static String kael(String s) { return AZUL + s + RESET; }
     public static String lyra(String s) { return ROSA + s + RESET; }
-    public static String elyra(String s) { return CIANO + s + RESET; }
+    public static String elyra(String s) { return VERDE + s + RESET; }
     public static String inimigo(String s) { return VERMELHO + s + RESET; }
     public static String sucesso(String s) { return VERDE + s + RESET; }
     public static String aviso(String s) { return AMARELO + s + RESET; }
