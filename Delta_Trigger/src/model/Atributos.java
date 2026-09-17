@@ -1,12 +1,7 @@
 package model;
 
 public class Atributos {
-    private int forca;
-    private int defesa;
-    private int inteligencia;
-    private int resistencia;
-    private int velocidade;
-    private int sorte;
+    private int forca, defesa, inteligencia, resistencia, velocidade, sorte;
 
     public Atributos(int forca, int defesa, int inteligencia, int resistencia, int velocidade, int sorte) {
         this.forca = Math.max(0, forca);
@@ -38,10 +33,5 @@ public class Atributos {
 
     public String salvar() {
         return forca + "," + defesa + "," + inteligencia + "," + resistencia + "," + velocidade + "," + sorte;
-    }
-
-    public void mostrar() {
-        System.out.println("Forca: " + forca + " | Defesa: " + defesa + " | Inteligencia: " + inteligencia);
-        System.out.println("Resistencia: " + resistencia + " | Velocidade: " + velocidade + " | Sorte: " + sorte);
     }
 }

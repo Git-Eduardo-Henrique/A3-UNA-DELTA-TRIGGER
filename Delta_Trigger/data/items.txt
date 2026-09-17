@@ -1,0 +1,10 @@
+# Estrutura inicial para o leitor de itens/equipamentos.
+# ITEM|Nome|Tipo|Preco|CuraHP|CuraMana
+ITEM|Pocao de Vida|Pocao|15|30|0
+ITEM|Pocao de Mana|Pocao|18|0|20
+# EQUIP|Nome|Tipo|Raridade|Preco|Forca|Defesa|Inteligencia|Resistencia|Velocidade|Sorte
+EQUIP|Espada de Ferro|Arma|Comum|35|2|0|0|0|0|0
+EQUIP|Armadura de Couro|Armadura|Comum|30|0|2|0|1|0|0
+EQUIP|Cajado Simples|Arma|Comum|35|0|0|2|0|0|0
+EQUIP|Manto da Pelagem Alfa|Armadura|Epico|0|0|3|0|1|0|1
+EQUIP|Botas da Pelagem Alfa|Botas|Raro|0|0|0|0|0|2|1

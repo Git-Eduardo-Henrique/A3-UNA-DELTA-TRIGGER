@@ -6,3 +6,6 @@ INTRO_4|Essas forcas criaram o Delta, um selo capaz de prender Malakar na Torre 
 INTRO_5|Seculos de paz se passaram. Entao, criaturas voltaram a surgir e uma energia estranha comecou a se espalhar.
 INTRO_6|O poder do Delta comecou a despertar. Esse despertar ficou conhecido como Delta Trigger.
 INTRO_7|Em uma pequena regiao de Aethoria, os irmaos Kael e Lyra decidem investigar os acontecimentos.
+ELDORIA_CHEGADA|Depois da floresta, as muralhas de Eldoria surgem diante do grupo.
+TAVERNA_ELDORIA|Viajantes comentam sobre criaturas estranhas perto da Caverna dos Slimes.
+FENROK_ENCONTRO|Fenrok, o protetor da alcateia, foi alterado pela energia estranha.

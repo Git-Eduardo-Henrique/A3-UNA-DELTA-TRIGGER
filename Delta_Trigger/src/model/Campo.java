@@ -1,6 +1,2 @@
 package model;
-
-public class Campo extends Cenario {
-    public Campo(String nome, String descricao) { super(nome, descricao); }
-    @Override public String getTipo() { return "Campo"; }
-}
+public class Campo extends Cenario { public Campo(String id,String nome,String descricao){super(id,nome,descricao);} public String getTipo(){return "Campo";} }

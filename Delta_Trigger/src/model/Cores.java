@@ -10,18 +10,32 @@ public final class Cores {
     public static final String ROXO = "\u001B[35m";
     public static final String CINZA = "\u001B[37m";
     public static final String CIANO = "\u001B[36m";
-
+    public static final String DOURADO = "\u001B[33m";
     private Cores() {}
-
-    public static String ciano(String texto) { return CIANO + texto + RESET; }
-    public static String normal(String texto) { return CINZA + texto + RESET; }
-    public static String kael(String texto) { return AZUL + texto + RESET; }
-    public static String lyra(String texto) { return ROSA + texto + RESET; }
-    public static String elyra(String texto) { return CIANO + texto + RESET; }
-    public static String inimigo(String texto) { return VERMELHO + texto + RESET; }
-    public static String sucesso(String texto) { return VERDE + texto + RESET; }
-    public static String vermelho(String texto) { return VERMELHO + texto + RESET; }
-    public static String amarelo(String texto) { return AMARELO + texto + RESET; }
-    public static String aviso(String texto) { return AMARELO + texto + RESET; }
-    public static String magia(String texto) { return ROXO + texto + RESET; }
+    public static String normal(String s) { return CINZA + s + RESET; }
+    public static String kael(String s) { return AZUL + s + RESET; }
+    public static String lyra(String s) { return ROSA + s + RESET; }
+    public static String elyra(String s) { return CIANO + s + RESET; }
+    public static String inimigo(String s) { return VERMELHO + s + RESET; }
+    public static String sucesso(String s) { return VERDE + s + RESET; }
+    public static String aviso(String s) { return AMARELO + s + RESET; }
+    public static String amarelo(String s) { return AMARELO + s + RESET; }
+    public static String magia(String s) { return ROXO + s + RESET; }
+    public static String ciano(String s) { return CIANO + s + RESET; }
+    public static String vermelho(String s) { return VERMELHO + s + RESET; }
+    public static String nomePersonagem(String nome) {
+        if ("Kael".equalsIgnoreCase(nome)) return kael(nome);
+        if ("Lyra".equalsIgnoreCase(nome)) return lyra(nome);
+        if ("Elyra".equalsIgnoreCase(nome)) return elyra(nome);
+        return normal(nome);
+    }
+    public static String raridade(String raridade, String texto) {
+        if (raridade == null) return texto;
+        if ("Comum".equalsIgnoreCase(raridade)) return VERDE + texto + RESET;
+        if ("Incomum".equalsIgnoreCase(raridade)) return CIANO + texto + RESET;
+        if ("Raro".equalsIgnoreCase(raridade)) return ROXO + texto + RESET;
+        if ("Epico".equalsIgnoreCase(raridade) || "Épico".equalsIgnoreCase(raridade)) return AMARELO + texto + RESET;
+        if ("Lendario".equalsIgnoreCase(raridade) || "Lendário".equalsIgnoreCase(raridade)) return VERMELHO + texto + RESET;
+        return texto;
+    }
 }

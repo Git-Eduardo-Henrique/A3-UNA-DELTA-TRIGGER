@@ -1,0 +1,6 @@
+# Estrutura de dados das classes. A V3.2 usa classes Java para polimorfismo.
+# ID|Nome|Observacao
+GUERREIRO|Guerreiro|Ataques fisicos e defesa
+SUPORTE|Suporte|Curas e apoio
+ARQUEIRA_ARCANA|Arqueira Arcana|Ataques fisicos e magicos
+MAGO_SOMBRIO|Mago Sombrio|Magia ofensiva e debuffs (proxima implementacao)

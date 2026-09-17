@@ -1,0 +1,8 @@
+# ID|Nome|HP|Ataque|Defesa|Velocidade|Sorte|Ouro
+LOBINHO|Lobinho|20|7|3|8|3|8
+LOBO|Lobo|34|10|5|9|4|15
+FENROK|Fenrok, Lobo Alfa|110|18|8|10|6|50
+# Estrutura preparada para adicionar os demais inimigos:
+# SLIME|Slime|25|7|3|5|3|10
+# SLIME_GUERREIRO|Slime Guerreiro|40|11|5|6|4|18
+# GELLOR|Gellor, Rei dos Slimes|130|20|9|7|6|60

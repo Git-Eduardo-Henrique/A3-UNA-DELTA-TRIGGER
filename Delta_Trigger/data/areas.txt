@@ -1,0 +1,8 @@
+# Tipo|ID|Nome|Descricao
+CAVERNA|CAVERNA_SLIMES|Caverna dos Slimes|Uma caverna umida tomada por criaturas gelatinosas.
+# WAVE|ID_CENARIO|Numero|Mensagem|INIMIGO:quantidade;INIMIGO:quantidade
+WAVE|CAVERNA_SLIMES|1|Tres slimes surgiram!|SLIME:3
+WAVE|CAVERNA_SLIMES|2|Mais slimes bloqueiam o caminho!|SLIME:3
+WAVE|CAVERNA_SLIMES|3|Slimes guerreiros apareceram!|SLIME_GUERREIRO:2
+WAVE|CAVERNA_SLIMES|4|O caminho para o rei esta livre!|SLIME:2;SLIME_GUERREIRO:1
+WAVE|CAVERNA_SLIMES|5|Gellor, o Rei dos Slimes, apareceu!|GELLOR:1
