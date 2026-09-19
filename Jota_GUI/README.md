@@ -43,3 +43,10 @@ java -cp out Main
 ## Base de cenarios
 
 A classe abstrata Cenario possui as especializacoes Cidade, Campo e Caverna. Essa estrutura sera reutilizada nas proximas areas, mantendo heranca, abstracao e polimorfismo sem duplicar a base de cada cenario.
+
+ETAPA 5
+- Batalha redesenhada: somente o protagonista do turno aparece no painel esquerdo.
+- Waves 1-2 usam cenário 1; waves 3-4 usam cenário 2; Fenrok usa cenário 3.
+- Inimigos ficam abaixo do cenário e a arena suporta múltiplos alvos.
+- Botão ITEM abre consumíveis durante a batalha, permite escolher alvo e só consome quando tem efeito.
+- Próxima etapa iniciada: base para Caverna dos Slimes permanece após Eldoria.
