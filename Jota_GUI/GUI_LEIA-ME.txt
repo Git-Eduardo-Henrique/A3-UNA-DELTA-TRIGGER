@@ -1,28 +1,21 @@
-DELTA TRIGGER - PRIMEIRA ETAPA DA GUI
+DELTA TRIGGER — GUI ETAPA 2
 
-O projeto original foi preservado. A GUI nova foi ADICIONADA em:
-- src/MainGUI.java
-- src/gui/DeltaTriggerGUI.java
+ALTERAÇÕES DESTA VERSÃO
+- Paleta azul + dourado inspirada na identidade visual/logo.
+- Logo adicionada ao menu inicial.
+- História agora aparece automaticamente com efeito de digitação.
+- Botão para pular a animação da história.
+- Imagens de Kael e Lyra nos cards de seleção.
+- Primeira batalha gráfica contra um Lobo.
+- Botões Atacar, Habilidade, Defender e Fugir.
+- HP do personagem e do inimigo atualizados visualmente.
+- Models originais continuam preservados.
 
-Como testar no IntelliJ:
-1. Abra o projeto/pasta.
-2. Aguarde o IntelliJ reconhecer o JDK.
-3. Abra src/MainGUI.java.
-4. Clique no triangulo verde ao lado de main().
+COMO EXECUTAR
+1. Extraia o ZIP.
+2. Abra a pasta delta_gui no IntelliJ.
+3. Execute src/MainGUI.java.
 
-Esta primeira etapa inclui:
-- Menu inicial gráfico
-- Introdução da história
-- Escolha entre Kael e Lyra
-- Primeira tela da Floresta dos Lobos
-- Painel de status do líder
-- Botões-base para Explorar, Inventário e Personagem
-
-Ainda não conectado à GUI nesta etapa:
-- Batalhas/waves
-- Inventário completo
-- Save/load gráfico
-- Cidade/caverna
-- Imagens finais dos cenários/personagens
-
-O Main.java antigo continua intacto e ainda inicia a versão de terminal.
+IMPORTANTE
+Mantenha a pasta assets ao lado de src. Ela contém os recortes visuais usados pela GUI.
+A opção Habilidade ainda não executa as habilidades porque Guerreiro/Suporte usam Entrada.lerInt no terminal; essa conversão será a próxima subetapa.
