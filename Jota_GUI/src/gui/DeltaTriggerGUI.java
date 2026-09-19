@@ -1083,13 +1083,148 @@ public class DeltaTriggerGUI {
     private String mensagemClasse(Personagem h,Equipamento e){return h.getNome()+" não pode usar "+e.getNome()+" porque essa arma não pertence à classe dele(a).";}
     private void lojaGUI(){
         JPanel tela=painelFundo("loja_bg.jpg");
-        JPanel menu=painelFlutuante();menu.setPreferredSize(new Dimension(430,420));
-        JLabel cab=new JLabel("<html><center><font size='6' color='#e2a63a'>LOJA DA LUA AZUL</font><br><font color='#d7e8f7'>Equipamentos, consumíveis e comparação de atributos.</font></center></html>",SwingConstants.CENTER);cab.setFont(NORMAL);menu.add(cab,BorderLayout.NORTH);
-        ouroLojaLabel=new JLabel("OURO DO LÍDER: $"+grupo[0].getDinheiro(),SwingConstants.CENTER);ouroLojaLabel.setForeground(OURO);ouroLojaLabel.setFont(new Font("Serif",Font.BOLD,20));menu.add(ouroLojaLabel,BorderLayout.CENTER);
-        JPanel botoes=new JPanel(new GridLayout(0,1,8,8));botoes.setOpaque(false);JButton balcao=botao("ABRIR BALCÃO DA LOJA"),mochila=botao("ABRIR MOCHILA"),voltar=botao("VOLTAR PARA ELDORIA");
-        balcao.addActionListener(e->{abrirBalcaoLoja();if(ouroLojaLabel!=null)ouroLojaLabel.setText("OURO DO LÍDER: $"+grupo[0].getDinheiro());});mochila.addActionListener(e->abrirMochila(false));voltar.addActionListener(e->mostrarEldoria());botoes.add(balcao);botoes.add(mochila);botoes.add(voltar);menu.add(botoes,BorderLayout.SOUTH);
-        GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.gridy=0;g.weightx=1;g.weighty=1;g.anchor=GridBagConstraints.SOUTHEAST;g.insets=new Insets(0,0,52,65);tela.add(menu,g);mostrarCard("LOJA",tela);
+        tela.setLayout(new GridBagLayout());
+
+        JPanel painel=painelFlutuante();
+        painel.setPreferredSize(new Dimension(1080,660));
+        painel.setLayout(new BorderLayout(14,14));
+
+        JPanel cabecalho=new JPanel(new BorderLayout());
+        cabecalho.setOpaque(false);
+        JLabel tituloLoja=new JLabel("LOJA DA LUA AZUL",SwingConstants.LEFT);
+        tituloLoja.setForeground(OURO);
+        tituloLoja.setFont(new Font("Serif",Font.BOLD,30));
+        JLabel subtitulo=new JLabel("Equipamentos, consumíveis e comparação de atributos.",SwingConstants.LEFT);
+        subtitulo.setForeground(new Color(210,225,240));
+        subtitulo.setFont(new Font("Serif",Font.PLAIN,16));
+        JPanel textos=new JPanel();textos.setOpaque(false);textos.setLayout(new BoxLayout(textos,BoxLayout.Y_AXIS));
+        textos.add(tituloLoja);textos.add(subtitulo);
+        ouroLojaLabel=new JLabel("OURO: $"+grupo[0].getDinheiro(),SwingConstants.RIGHT);
+        ouroLojaLabel.setForeground(OURO);ouroLojaLabel.setFont(new Font("Serif",Font.BOLD,22));
+        cabecalho.add(textos,BorderLayout.WEST);cabecalho.add(ouroLojaLabel,BorderLayout.EAST);
+        painel.add(cabecalho,BorderLayout.NORTH);
+
+        final JComboBox<String> heroiBox=new JComboBox<String>();
+        for(Personagem h:grupo)heroiBox.addItem(h.getNome());
+        heroiBox.setFont(new Font("Serif",Font.BOLD,15));
+        heroiBox.setBackground(new Color(8,25,48));heroiBox.setForeground(TEXTO);
+
+        JPanel abas=new JPanel(new FlowLayout(FlowLayout.LEFT,8,0));abas.setOpaque(false);
+        final JButton comprar=botao("COMPRAR");final JButton vender=botao("VENDER");final JButton equipar=botao("EQUIPAR");
+        final String[] modo={"COMPRAR"};
+        JLabel personagem=new JLabel("Personagem:");personagem.setForeground(TEXTO);personagem.setFont(NORMAL);
+        abas.add(personagem);abas.add(heroiBox);abas.add(Box.createHorizontalStrut(16));abas.add(comprar);abas.add(vender);abas.add(equipar);
+
+        JPanel topoCentro=new JPanel(new BorderLayout());topoCentro.setOpaque(false);topoCentro.add(abas,BorderLayout.NORTH);
+
+        final DefaultListModel<String> lm=new DefaultListModel<String>();
+        final JList<String> lista=new JList<String>(lm);
+        lista.setBackground(new Color(3,14,30,225));lista.setForeground(TEXTO);lista.setFont(new Font("Serif",Font.PLAIN,18));
+        lista.setSelectionBackground(new Color(17,67,116));lista.setSelectionForeground(Color.WHITE);
+        lista.setFixedCellHeight(42);
+        lista.setBorder(new EmptyBorder(8,8,8,8));
+        JScrollPane listaScroll=new JScrollPane(lista);listaScroll.setBorder(BorderFactory.createLineBorder(AZUL,1));
+
+        JPanel detalhe=moldura();detalhe.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(OURO,1),new EmptyBorder(18,18,18,18)));
+        JLabel icone=new JLabel();icone.setHorizontalAlignment(SwingConstants.CENTER);icone.setPreferredSize(new Dimension(150,150));
+        JLabel detalheTexto=new JLabel("Selecione um item",SwingConstants.CENTER);detalheTexto.setForeground(TEXTO);detalheTexto.setFont(new Font("Serif",Font.PLAIN,17));
+        JButton agir=botao("COMPRAR");agir.setPreferredSize(new Dimension(220,46));
+        detalhe.add(icone,BorderLayout.NORTH);detalhe.add(detalheTexto,BorderLayout.CENTER);detalhe.add(agir,BorderLayout.SOUTH);
+
+        JPanel corpo=new JPanel(new GridLayout(1,2,14,0));corpo.setOpaque(false);corpo.add(listaScroll);corpo.add(detalhe);
+        topoCentro.add(corpo,BorderLayout.CENTER);
+        painel.add(topoCentro,BorderLayout.CENTER);
+
+        JPanel rodape=new JPanel(new BorderLayout());rodape.setOpaque(false);
+        JLabel dica=new JLabel("Dica: armas incompatíveis com a classe ficam bloqueadas.");dica.setForeground(new Color(150,190,225));dica.setFont(new Font("Serif",Font.ITALIC,14));
+        JPanel botoesRodape=new JPanel(new FlowLayout(FlowLayout.RIGHT,8,0));botoesRodape.setOpaque(false);
+        JButton mochila=botao("ABRIR MOCHILA");JButton voltar=botao("VOLTAR PARA ELDORIA");
+        botoesRodape.add(mochila);botoesRodape.add(voltar);rodape.add(dica,BorderLayout.WEST);rodape.add(botoesRodape,BorderLayout.EAST);
+        painel.add(rodape,BorderLayout.SOUTH);
+
+        final java.util.List<Object> objetos=new ArrayList<Object>();
+        final Runnable[] recarregar=new Runnable[1];final Runnable[] detalhar=new Runnable[1];
+
+        recarregar[0]=()->{
+            Personagem h=null;for(Personagem x:grupo)if(x.getNome().equals(heroiBox.getSelectedItem()))h=x;if(h==null)return;
+            ouroLojaLabel.setText("OURO: $"+h.getDinheiro());
+            objetos.clear();lm.clear();
+            if("COMPRAR".equals(modo[0]))objetos.addAll(estoqueLoja());
+            else if("VENDER".equals(modo[0]))objetos.addAll(h.getInventario().getItens());
+            else objetos.addAll(h.getInventario().getEquipamentos());
+            for(Object o:objetos){
+                String nome=o instanceof Item?((Item)o).getNome()+"  x"+((Item)o).getQuantidade():((Equipamento)o).getNome();
+                int preco=o instanceof Item?((Item)o).getPreco():((Equipamento)o).getPreco();
+                if("COMPRAR".equals(modo[0]))nome += "    $"+preco;
+                lm.addElement(nome);
+            }
+            if(!objetos.isEmpty())lista.setSelectedIndex(0);else{detalheTexto.setText("<html><center>Nenhum item disponível nesta categoria.</center></html>");icone.setIcon(null);}
+        };
+
+        detalhar[0]=()->{
+            int idx=lista.getSelectedIndex();if(idx<0||idx>=objetos.size()){detalheTexto.setText("Selecione um item");icone.setIcon(null);return;}
+            Personagem h=null;for(Personagem x:grupo)if(x.getNome().equals(heroiBox.getSelectedItem()))h=x;if(h==null)return;
+            Object o=objetos.get(idx);
+            String nomeItem=o instanceof Item?((Item)o).getNome():((Equipamento)o).getNome();
+            icone.setIcon(iconeObjeto(nomeItem,96));
+            if(o instanceof Item){
+                Item i=(Item)o;
+                String efeito=i.getCuraHp()>0?"Recupera "+i.getCuraHp()+" HP":i.getCuraMana()>0?"Recupera "+i.getCuraMana()+" Mana":"Material / item de missão";
+                detalheTexto.setText("<html><center><font size='6' color='#e2a63a'><b>"+i.getNome()+"</b></font><br><br>Tipo: "+i.getTipo()+"<br>Preço: $"+i.getPreco()+"<br>Quantidade: x"+i.getQuantidade()+"<br><br><font color='#9fc6ef'>"+efeito+"</font></center></html>");
+            }else{
+                Equipamento e=(Equipamento)o;
+                String compat=podeUsarEquipamento(h,e)?"<font color='#65df9e'><b>COMPATÍVEL</b></font>":"<font color='#ef6b78'><b>INCOMPATÍVEL COM ESTA CLASSE</b></font>";
+                detalheTexto.setText("<html><center><font size='6' color='#e2a63a'><b>"+e.getNome()+"</b></font><br>"+compat+"<br><br>Tipo: "+e.getTipo()+" &nbsp; • &nbsp; $"+e.getPreco()+"<br><br><font color='#9fc6ef'>"+bonusEquipamentoHtml(e)+"</font><br><hr width='70%'>"+comparacaoEquipamentoHtml(h,e)+"</center></html>");
+            }
+            agir.setText(modo[0]);
+        };
+
+        Runnable atualizarAbas=()->{
+            comprar.setBackground("COMPRAR".equals(modo[0])?new Color(18,65,112):PAINEL);
+            vender.setBackground("VENDER".equals(modo[0])?new Color(18,65,112):PAINEL);
+            equipar.setBackground("EQUIPAR".equals(modo[0])?new Color(18,65,112):PAINEL);
+            recarregar[0].run();detalhar[0].run();
+        };
+        comprar.addActionListener(e->{modo[0]="COMPRAR";atualizarAbas.run();});
+        vender.addActionListener(e->{modo[0]="VENDER";atualizarAbas.run();});
+        equipar.addActionListener(e->{modo[0]="EQUIPAR";atualizarAbas.run();});
+        heroiBox.addActionListener(e->{recarregar[0].run();detalhar[0].run();});
+        lista.addListSelectionListener(e->{if(!e.getValueIsAdjusting())detalhar[0].run();});
+
+        agir.addActionListener(ev->{
+            int idx=lista.getSelectedIndex();if(idx<0||idx>=objetos.size())return;
+            Personagem h=null;for(Personagem x:grupo)if(x.getNome().equals(heroiBox.getSelectedItem()))h=x;if(h==null)return;
+            Object o=objetos.get(idx);
+            if("COMPRAR".equals(modo[0])){
+                if(o instanceof Equipamento&&!podeUsarEquipamento(h,(Equipamento)o)){mostrarAvisoEstilizado("Classe incompatível",mensagemClasse(h,(Equipamento)o));return;}
+                int preco=o instanceof Item?((Item)o).getPreco():((Equipamento)o).getPreco();
+                if(!h.gastarDinheiro(preco)){mostrarAvisoEstilizado("Ouro insuficiente","Você não possui ouro suficiente para comprar este item.");return;}
+                Object novo=clonarLoja(o);if(novo instanceof Item)h.getInventario().adicionarItem((Item)novo);else h.getInventario().adicionarEquipamento((Equipamento)novo);
+                somFeedback();mostrarAvisoEstilizado("Compra realizada",""+nomeItemLoja(o)+" foi adicionado ao inventário de "+h.getNome()+".");
+            }else if("VENDER".equals(modo[0])){
+                if(!(o instanceof Item))return;Item i=(Item)o;int max=i.getQuantidade();
+                JSpinner quantidade=new JSpinner(new SpinnerNumberModel(1,1,max,1));
+                JPanel q=moldura();JLabel lab=new JLabel("Quantidade para vender (máx. "+max+"):");lab.setForeground(TEXTO);q.add(lab,BorderLayout.CENTER);q.add(quantidade,BorderLayout.EAST);
+                int ok=JOptionPane.showConfirmDialog(janela,q,"Venda",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);if(ok!=JOptionPane.OK_OPTION)return;
+                int qtd=(Integer)quantidade.getValue();int valor=Math.max(1,i.getPreco()/2);
+                for(int k=0;k<qtd;k++){h.adicionarDinheiro(valor);h.getInventario().removerUmaUnidade(i);}somFeedback();
+                mostrarAvisoEstilizado("Venda concluída",qtd+" unidade(s) vendida(s). Você recebeu $"+(valor*qtd)+".");
+            }else{
+                if(o instanceof Equipamento){Equipamento eq=(Equipamento)o;if(!podeUsarEquipamento(h,eq)){mostrarAvisoEstilizado("Classe incompatível",mensagemClasse(h,eq));return;}h.equipar(eq);somFeedback();mostrarAvisoEstilizado("Equipamento",eq.getNome()+" foi equipado em "+h.getNome()+".");}
+            }
+            recarregar[0].run();detalhar[0].run();
+        });
+
+        mochila.addActionListener(e->abrirMochila(false));
+        voltar.addActionListener(e->mostrarEldoria());
+        atualizarAbas.run();
+
+        GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.gridy=0;g.weightx=1;g.weighty=1;g.anchor=GridBagConstraints.CENTER;
+        tela.add(painel,g);
+        mostrarCard("LOJA",tela);
     }
+
+    private String nomeItemLoja(Object o){return o instanceof Item?((Item)o).getNome():o instanceof Equipamento?((Equipamento)o).getNome():"Item";}
 
     private Object clonarLoja(Object o){
         if(o instanceof Item){Item i=(Item)o;return new Item(i.getNome(),i.getTipo(),i.getPreco(),i.getCuraHp(),i.getCuraMana());}
