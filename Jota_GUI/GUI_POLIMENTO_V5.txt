@@ -1,0 +1,64 @@
+DELTA TRIGGER — GUI POLIMENTO V5
+
+Base:
+- Regras e estrutura do V3.1 em console preservadas como referência.
+- Interface construída em Java Swing.
+
+Principais melhorias desta revisão:
+
+1. BATALHA
+- Transição visual curta ao entrar em cada wave/chefe.
+- Wave da Floresta apresentada como 1/5 até 5/5.
+- Efeito visual de impacto nos inimigos ao atacar ou usar habilidade.
+- Botões de ação ficam bloqueados durante a animação para evitar cliques duplicados.
+- Feedback visual para Defender, cura, Vitória e Level Up.
+- Tela dedicada de Game Over com opção de tentar novamente.
+- Tela de vitória continua permitindo avançar para a próxima etapa.
+
+2. PERSONAGENS / HUD
+- Retratos de Kael e Lyra continuam padronizados em HUD, batalha e inventário.
+- Grupo mostra arma e armadura equipadas.
+- Clicar em um herói na tela de Grupo abre a mochila daquele personagem.
+- Elyra continua com arte provisória até existir imagem própria.
+
+3. MOCHILA / EQUIPAMENTOS
+- Fundo visual integrado à tela de Grupo/Inventário.
+- Comparação automática entre equipamento selecionado e equipamento atual.
+- Diferenças positivas e negativas aparecem em cores diferentes.
+- Botão Equipar passa a virar Desequipar quando o item já está equipado.
+- O personagem escolhido na tela de Grupo abre diretamente na mochila.
+- Inventário em batalha continua limitado a itens utilizáveis.
+
+4. LOJA
+- Novo balcão gráfico em vez de depender apenas de JOptionPane.
+- Modos Comprar / Vender / Equipar.
+- Seleção de personagem dentro da própria loja.
+- Detalhes do item/equipamento e comparação com o item equipado.
+
+5. ELDORIA / PROGRESSO
+- Eldoria ganhou acesso direto ao Mapa da Jornada.
+- Mapa mostra Floresta, Fenrok, Eldoria, Caverna e Rei Slime.
+- Mostra etapas concluídas, atual e bloqueadas.
+
+6. DIÁLOGOS
+- Primeiro diálogo visual com retrato e nome do personagem foi adicionado.
+- Entrada de Elyra usa diálogo em painel no estilo RPG.
+
+7. SAVE / MENU
+- Menu inicial ganhou Novo Jogo, Continuar, Opções, Créditos e Sair.
+- Continuar só fica disponível quando existe save.txt.
+- Save carregado retorna para a área salva.
+- Opções permitem ligar/desligar feedback sonoro simples do sistema.
+
+8. RESPONSIVIDADE
+- Janela inicial adapta o tamanho à resolução do monitor.
+- Mochila também limita seu tamanho ao espaço disponível da tela.
+
+9. FINAL
+- Tela final da Caverna dos Slimes foi redesenhada com painel central e fundo do cenário.
+
+EXECUTAR:
+Abra src/MainGUI.java e execute MainGUI.main().
+
+Observação:
+As imagens novas do usuário foram mantidas e usadas nas telas correspondentes. A arte da Elyra ainda é provisória.

@@ -132,6 +132,13 @@ public abstract class Personagem {
         else if ("Botas".equalsIgnoreCase(tipo)) botasEquipadas = equipamento;
     }
 
+    public void desequipar(Equipamento equipamento) {
+        if (equipamento == null) return;
+        if (armaEquipada == equipamento) armaEquipada = null;
+        if (armaduraEquipada == equipamento) armaduraEquipada = null;
+        if (botasEquipadas == equipamento) botasEquipadas = null;
+    }
+
     public boolean vivo() { return vida > 0; }
     public String getNome() { return nome; }
     public int getVida() { return vida; }
