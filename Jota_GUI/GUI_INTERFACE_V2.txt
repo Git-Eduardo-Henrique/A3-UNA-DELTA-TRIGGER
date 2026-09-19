@@ -1,0 +1,21 @@
+DELTA TRIGGER - GUI INTERFACE V2
+
+Mudancas principais:
+- Interface de batalha redesenhada.
+- Personagem do turno continua em destaque sozinho na coluna esquerda.
+- O outro protagonista/aliados agora aparecem na mesma batalha em cards menores de equipe.
+- HP e MP com barras visuais.
+- Cenario ocupa a area central/superior da batalha.
+- Inimigos ficam alinhados abaixo do cenario (2 a 5 inimigos suportados; chefe sozinho).
+- Inimigos agora podem ser clicados para selecionar o alvo.
+- Alvo selecionado recebe borda dourada e indicador ALVO.
+- Cenarios mudam entre lobinhos, lobos e Fenrok.
+- Interface da Caverna dos Slimes usa o mesmo padrao.
+- Botoes ganharam hover e acabamento azul/dourado.
+- Fundo geral recebeu gradiente escuro.
+- Correcao da fuga na caverna e de troca para personagem vivo.
+
+Como rodar:
+1. Abra o projeto no IntelliJ.
+2. Abra src/MainGUI.java.
+3. Execute MainGUI.main().
