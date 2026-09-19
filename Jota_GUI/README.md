@@ -21,14 +21,3 @@ Abra `src/MainGUI.java` e rode `main()`.
 ## Revisão V7 - fundo do menu principal
 - A tela inicial agora usa `assets/menu_bg.jpg`, a nova arte de Aethoria enviada pelo usuário.
 - `forest_bg.png` continua preservado para Floresta dos Lobos e batalhas; apenas o menu principal foi alterado.
-
-## Revisão V8 — Livro + correção dos itens em batalha
-
-- A introdução agora é apresentada como um livro aberto com 4 páginas (2 spreads).
-- O texto continua sendo escrito automaticamente respeitando a velocidade escolhida em Opções.
-- Botão "Mostrar páginas" completa apenas as páginas atuais.
-- "Próxima página" avança no livro e, ao final, segue para a escolha do personagem.
-- Corrigido o inventário de batalha: Kael/Lyra/Elyra podem ser clicados como ALVO do item.
-- O item continua saindo do inventário do personagem que está realizando o turno, como no V3.1.
-- Removido o conflito visual do texto "GRUPO / INVENTÁRIO" no fundo da janela de itens usando um recorte limpo do cenário.
-- Projeto recompilado com sucesso após as alterações.

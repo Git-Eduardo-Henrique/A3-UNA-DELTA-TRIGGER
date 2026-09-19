@@ -29,18 +29,6 @@ public class DeltaTriggerGUI {
     private Object mochilaSelecionado;
     private String mochilaCategoria="TODOS";
     private boolean mochilaEmBatalha=false;
-    private Personagem mochilaAlvoBatalha;
-    // Estado da introdução em formato de livro
-    private JTextArea textoHistoriaEsq, textoHistoriaDir;
-    private JLabel paginaHistoriaEsq, paginaHistoriaDir;
-    private JButton continuarHistoria, mostrarPaginaHistoria;
-    private int spreadHistoria=0;
-    private final String[][] paginasHistoriaLivro={
-            {"Em um mundo fragmentado por antigas guerras, o equilíbrio entre os reinos está ameaçado.",
-             "Dizem que, nas profundezas das florestas do norte, algo despertou. Os lobos, antes apenas sombras nas montanhas, agora se organizam, mais fortes e mais inteligentes."},
-            {"Kael e Lyra, dois irmãos unidos pelo mesmo propósito, partem para descobrir a origem dos ataques.",
-             "E isso é apenas o começo...\n\n— Crônicas de Aethoria —"}
-    };
     private static final Color FUNDO=new Color(2,10,24), PAINEL=new Color(5,18,36), AZUL=new Color(36,126,255), AZULC=new Color(126,200,255), OURO=new Color(226,166,58), TEXTO=new Color(235,242,250), VERDE=new Color(80,220,150);
     private static final Font TITULO=new Font("Serif",Font.BOLD,32), NORMAL=new Font("Serif",Font.PLAIN,17);
     private final String historia="Em um mundo fragmentado por antigas guerras, o equilíbrio entre os reinos está ameaçado.\n\nDizem que, nas profundezas das florestas do norte, algo despertou. Os lobos, antes apenas sombras nas montanhas, agora se organizam, mais fortes e mais inteligentes.\n\nKael e Lyra, dois irmãos unidos pelo mesmo propósito, partem para descobrir a origem dos ataques.\n\nE isso é apenas o começo...";
@@ -144,6 +132,75 @@ public class DeltaTriggerGUI {
         p.setOpaque(false);
         p.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(OURO,2),new EmptyBorder(16,18,16,18)));
         return p;
+    }
+    private JPanel painelLivroAberto(){
+        JPanel p=new JPanel(new BorderLayout(20,20)){
+            @Override protected void paintComponent(Graphics g){
+                Graphics2D g2=(Graphics2D)g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+                int w=getWidth(), h=getHeight();
+                g2.setColor(new Color(0,0,0,70));
+                g2.fillRoundRect(8,12,w-16,h-18,28,28);
+                GradientPaint gp=new GradientPaint(0,0,new Color(235,223,188),0,h,new Color(205,186,148));
+                g2.setPaint(gp);
+                g2.fillRoundRect(0,0,w-8,h-8,28,28);
+                g2.setColor(new Color(122,90,42));
+                g2.setStroke(new BasicStroke(2f));
+                g2.drawRoundRect(0,0,w-8,h-8,28,28);
+                int meio=(w-8)/2;
+                g2.setColor(new Color(120,94,61,70));
+                g2.fillRoundRect(meio-8,12,16,h-32,14,14);
+                g2.setColor(new Color(255,250,236,70));
+                g2.drawLine(meio-2,16,meio-2,h-24);
+                g2.drawLine(meio+2,16,meio+2,h-24);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        p.setOpaque(false);
+        p.setBorder(new EmptyBorder(28,36,28,36));
+        return p;
+    }
+    private JButton cardLocalImagem(String tituloLocal,String descricao,String arquivo){
+        final Image img=asset(arquivo).exists()?new ImageIcon(asset(arquivo).getPath()).getImage():null;
+        JButton b=new JButton(){
+            @Override protected void paintComponent(Graphics g){
+                Graphics2D g2=(Graphics2D)g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                int w=getWidth(), h=getHeight();
+                if(img!=null){
+                    int iw=img.getWidth(this), ih=img.getHeight(this);
+                    if(iw>0&&ih>0){
+                        double escala=Math.max((double)w/iw,(double)h/ih);
+                        int dw=(int)Math.round(iw*escala), dh=(int)Math.round(ih*escala);
+                        int x=(w-dw)/2, y=(h-dh)/2;
+                        g2.drawImage(img,x,y,dw,dh,this);
+                    }
+                }else{
+                    g2.setPaint(new GradientPaint(0,0,new Color(8,24,46),0,h,new Color(3,12,24)));
+                    g2.fillRect(0,0,w,h);
+                }
+                g2.setPaint(new GradientPaint(0,0,new Color(0,4,15,65),0,h,new Color(0,4,15,190)));
+                g2.fillRect(0,0,w,h);
+                if(getModel().isRollover()){
+                    g2.setColor(new Color(255,220,120,45));
+                    g2.fillRect(0,0,w,h);
+                }
+                g2.setColor(OURO);
+                g2.drawRect(0,0,w-1,h-1);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        b.setOpaque(false); b.setContentAreaFilled(false); b.setBorderPainted(false); b.setFocusPainted(false); b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setLayout(new BorderLayout());
+        JPanel overlay=new JPanel(new BorderLayout()); overlay.setOpaque(false); overlay.setBorder(new EmptyBorder(12,14,14,14));
+        JLabel top=new JLabel(tituloLocal,SwingConstants.CENTER); top.setForeground(Color.WHITE); top.setFont(new Font("Serif",Font.BOLD,18));
+        JLabel mid=new JLabel("<html><div style='text-align:center;color:#f7f1e2;'>"+descricao+"</div></html>",SwingConstants.CENTER); mid.setForeground(new Color(244,240,228)); mid.setFont(new Font("Serif",Font.PLAIN,13));
+        JLabel enter=new JLabel("ENTRAR",SwingConstants.CENTER); enter.setForeground(OURO); enter.setFont(new Font("Serif",Font.BOLD,13));
+        overlay.add(top,BorderLayout.NORTH); overlay.add(mid,BorderLayout.CENTER); overlay.add(enter,BorderLayout.SOUTH);
+        b.add(overlay);
+        return b;
     }
     private JLabel labelLocal(String html){
         JLabel l=new JLabel(html);l.setForeground(TEXTO);l.setFont(NORMAL);return l;
@@ -386,119 +443,66 @@ public class DeltaTriggerGUI {
         JLabel save=new JLabel(SaveService.existeSave()?"Save encontrado — Continuar disponível":"Nenhum save encontrado",SwingConstants.CENTER);save.setForeground(new Color(135,165,198));save.setAlignmentX(.5f);c.add(Box.createVerticalStrut(10));c.add(save);c.add(Box.createVerticalGlue());
         GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.gridy=0;g.weightx=1;g.weighty=1;g.anchor=GridBagConstraints.WEST;g.insets=new Insets(30,55,30,30);sombra.add(c,g);p.add(sombra,BorderLayout.CENTER);return p;
     }
-    private JPanel paginaLivroPanel(final boolean esquerda){
-        JPanel pagina=new JPanel(new BorderLayout(8,8));
-        pagina.setOpaque(false);
-        pagina.setBorder(new EmptyBorder(42,48,38,48));
-        JLabel ornamento=new JLabel(esquerda?"✦  CRÔNICAS DE AETHORIA  ✦":"✦  O DESPERTAR  ✦",SwingConstants.CENTER);
-        ornamento.setForeground(new Color(110,67,28));
-        ornamento.setFont(new Font("Serif",Font.BOLD,18));
-        pagina.add(ornamento,BorderLayout.NORTH);
-        JTextArea area=new JTextArea();
-        area.setEditable(false);area.setLineWrap(true);area.setWrapStyleWord(true);area.setOpaque(false);
-        area.setFont(new Font("Serif",Font.PLAIN,23));area.setForeground(new Color(48,31,20));
-        area.setBorder(new EmptyBorder(22,8,12,8));
-        area.setFocusable(false);
-        if(esquerda)textoHistoriaEsq=area;else textoHistoriaDir=area;
-        pagina.add(area,BorderLayout.CENTER);
-        JLabel num=new JLabel("",SwingConstants.CENTER);num.setForeground(new Color(112,79,44));num.setFont(new Font("Serif",Font.ITALIC,14));
-        if(esquerda)paginaHistoriaEsq=num;else paginaHistoriaDir=num;
-        pagina.add(num,BorderLayout.SOUTH);
-        return pagina;
-    }
-
+    private JTextArea textoHistoria; private JButton continuarHistoria;
     private JPanel criarHistoria(){
-        JPanel p=base();
-        JLabel cab=titulo("HISTÓRIA — CRÔNICAS DE AETHORIA");
-        p.add(cab,BorderLayout.NORTH);
+        JPanel fundo=painelFundo("menu_bg.jpg");
+        fundo.setLayout(new BorderLayout(16,16));
+        fundo.setBorder(new EmptyBorder(18,20,18,20));
+        fundo.add(titulo("HISTÓRIA — CRÔNICAS DE AETHORIA"),BorderLayout.NORTH);
 
-        JPanel livro=new JPanel(new GridLayout(1,2,28,0)){
-            @Override protected void paintComponent(Graphics g){
-                Graphics2D g2=(Graphics2D)g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-                int w=getWidth(),h=getHeight();
-                // sombra do livro
-                g2.setColor(new Color(0,0,0,105));
-                g2.fillRoundRect(18,18,w-36,h-28,30,30);
-                // páginas
-                GradientPaint pg=new GradientPaint(0,0,new Color(245,226,182),w,0,new Color(226,196,139));
-                g2.setPaint(pg);
-                g2.fillRoundRect(8,8,w-16,h-20,26,26);
-                // borda dourada antiga
-                g2.setColor(new Color(139,94,37));g2.setStroke(new BasicStroke(3f));
-                g2.drawRoundRect(10,10,w-21,h-25,24,24);
-                // lombada
-                int cx=w/2;
-                g2.setPaint(new GradientPaint(cx-14,0,new Color(112,72,34,120),cx+14,0,new Color(248,226,176,55)));
-                g2.fillRoundRect(cx-13,12,26,h-30,16,16);
-                g2.setColor(new Color(91,54,26,100));g2.drawLine(cx,20,cx,h-28);
-                // cantos decorativos
-                g2.setColor(new Color(137,91,34));
-                for(int x:new int[]{28,w-40})for(int y:new int[]{28,h-48})g2.fillOval(x,y,8,8);
-                g2.dispose();
-            }
-        };
-        livro.setOpaque(false);
-        livro.setBorder(new EmptyBorder(18,34,16,34));
-        livro.add(paginaLivroPanel(true));
-        livro.add(paginaLivroPanel(false));
-        p.add(livro,BorderLayout.CENTER);
+        JPanel centro=new JPanel(new GridBagLayout());
+        centro.setOpaque(false);
+        JPanel livro=painelLivroAberto();
+        livro.setPreferredSize(new Dimension(1080,610));
 
-        mostrarPaginaHistoria=botao("MOSTRAR PÁGINAS");
-        mostrarPaginaHistoria.addActionListener(e->finalizarHistoria());
-        continuarHistoria=botao("PRÓXIMA PÁGINA");continuarHistoria.setEnabled(false);
-        continuarHistoria.addActionListener(e->avancarHistoriaLivro());
-        JPanel sul=new JPanel(new FlowLayout(FlowLayout.CENTER,15,0));sul.setOpaque(false);
-        sul.add(mostrarPaginaHistoria);sul.add(continuarHistoria);p.add(sul,BorderLayout.SOUTH);
-        return p;
-    }
+        JPanel paginas=new JPanel(new GridLayout(1,2,18,0));
+        paginas.setOpaque(false);
 
-    private void iniciarHistoria(){
-        telas.show(raiz,"HISTORIA");
-        spreadHistoria=0;
-        iniciarSpreadHistoria();
-    }
+        JPanel esquerda=new JPanel(new BorderLayout(8,8));
+        esquerda.setOpaque(false);
+        JLabel capitulo=new JLabel("PRÓLOGO",SwingConstants.CENTER);
+        capitulo.setForeground(new Color(96,58,24));
+        capitulo.setFont(new Font("Serif",Font.BOLD,28));
+        JLabel subtitulo=new JLabel("<html><center>O início da jornada<br/>de Kael e Lyra</center></html>",SwingConstants.CENTER);
+        subtitulo.setForeground(new Color(120,84,36));
+        subtitulo.setFont(new Font("Serif",Font.PLAIN,18));
+        JTextArea intro=new JTextArea("As antigas guerras deixaram cicatrizes profundas em Aethoria.\n\nAgora, algo desperta nas sombras do norte — e dois irmãos serão chamados a enfrentar o que está por vir.");
+        intro.setEditable(false); intro.setLineWrap(true); intro.setWrapStyleWord(true); intro.setOpaque(false); intro.setForeground(new Color(86,58,25)); intro.setFont(new Font("Serif",Font.PLAIN,22)); intro.setBorder(new EmptyBorder(20,18,20,18));
+        JLabel marca=new JLabel("✦ Delta Trigger ✦",SwingConstants.CENTER); marca.setForeground(new Color(143,97,38)); marca.setFont(new Font("Serif",Font.BOLD,20));
+        esquerda.add(capitulo,BorderLayout.NORTH); esquerda.add(subtitulo,BorderLayout.CENTER); esquerda.add(intro,BorderLayout.SOUTH); esquerda.add(marca,BorderLayout.PAGE_END);
 
-    private void iniciarSpreadHistoria(){
-        if(timerHistoria!=null)timerHistoria.stop();
-        indiceLetra=0;
-        textoHistoriaEsq.setText("");textoHistoriaDir.setText("");
-        paginaHistoriaEsq.setText("Página "+(spreadHistoria*2+1));
-        paginaHistoriaDir.setText("Página "+(spreadHistoria*2+2));
-        continuarHistoria.setText(spreadHistoria<paginasHistoriaLivro.length-1?"PRÓXIMA PÁGINA":"FECHAR LIVRO E CONTINUAR");
+        JPanel direita=new JPanel(new BorderLayout(8,8));
+        direita.setOpaque(false);
+        textoHistoria=new JTextArea();
+        textoHistoria.setEditable(false); textoHistoria.setLineWrap(true); textoHistoria.setWrapStyleWord(true);
+        textoHistoria.setFont(new Font("Serif",Font.PLAIN,24)); textoHistoria.setForeground(new Color(72,46,18));
+        textoHistoria.setOpaque(false); textoHistoria.setBorder(new EmptyBorder(20,18,20,18)); textoHistoria.setMargin(new Insets(0,0,0,0));
+        JScrollPane sp=new JScrollPane(textoHistoria);
+        sp.setOpaque(false); sp.getViewport().setOpaque(false); sp.setBorder(BorderFactory.createEmptyBorder());
+        JLabel pagina=new JLabel("Página 1",SwingConstants.RIGHT); pagina.setForeground(new Color(143,97,38)); pagina.setFont(new Font("Serif",Font.ITALIC,16));
+        direita.add(sp,BorderLayout.CENTER); direita.add(pagina,BorderLayout.SOUTH);
+
+        paginas.add(esquerda); paginas.add(direita);
+        livro.add(paginas,BorderLayout.CENTER);
+
+        JPanel acoes=new JPanel(new FlowLayout(FlowLayout.CENTER,15,0));
+        acoes.setOpaque(false);
+        JButton pular=botao("MOSTRAR TEXTO TODO");
+        pular.addActionListener(e->finalizarHistoria());
+        continuarHistoria=botao("VIRAR A PÁGINA / CONTINUAR");
         continuarHistoria.setEnabled(false);
-        String esquerda=paginasHistoriaLivro[spreadHistoria][0];
-        String direita=paginasHistoriaLivro[spreadHistoria][1];
-        int total=esquerda.length()+direita.length();
-        if(velocidadeHistoriaMs<=0){finalizarHistoria();return;}
-        timerHistoria=new javax.swing.Timer(velocidadeHistoriaMs,e->{
-            if(indiceLetra<total){
-                indiceLetra=Math.min(total,indiceLetra+letrasHistoriaPorTick);
-                if(indiceLetra<=esquerda.length()){
-                    textoHistoriaEsq.setText(esquerda.substring(0,indiceLetra));textoHistoriaDir.setText("");
-                }else{
-                    textoHistoriaEsq.setText(esquerda);
-                    textoHistoriaDir.setText(direita.substring(0,indiceLetra-esquerda.length()));
-                }
-            }else{
-                timerHistoria.stop();continuarHistoria.setEnabled(true);
-            }
-        });
-        timerHistoria.start();
-    }
+        continuarHistoria.addActionListener(e->telas.show(raiz,"ESCOLHA"));
+        acoes.add(pular); acoes.add(continuarHistoria);
+        livro.add(acoes,BorderLayout.SOUTH);
 
-    private void finalizarHistoria(){
-        if(timerHistoria!=null)timerHistoria.stop();
-        textoHistoriaEsq.setText(paginasHistoriaLivro[spreadHistoria][0]);
-        textoHistoriaDir.setText(paginasHistoriaLivro[spreadHistoria][1]);
-        continuarHistoria.setEnabled(true);
+        GridBagConstraints g=new GridBagConstraints();
+        g.gridx=0; g.gridy=0; g.weightx=1; g.weighty=1; g.anchor=GridBagConstraints.CENTER; g.fill=GridBagConstraints.NONE;
+        centro.add(livro,g);
+        fundo.add(centro,BorderLayout.CENTER);
+        return fundo;
     }
-
-    private void avancarHistoriaLivro(){
-        somFeedback();
-        if(spreadHistoria<paginasHistoriaLivro.length-1){spreadHistoria++;iniciarSpreadHistoria();}
-        else telas.show(raiz,"ESCOLHA");
-    }
+    private void iniciarHistoria(){textoHistoria.setText("");indiceLetra=0;continuarHistoria.setEnabled(false);telas.show(raiz,"HISTORIA");if(timerHistoria!=null)timerHistoria.stop();if(velocidadeHistoriaMs<=0){finalizarHistoria();return;}timerHistoria=new javax.swing.Timer(velocidadeHistoriaMs,e->{if(indiceLetra<historia.length()){int n=Math.min(letrasHistoriaPorTick,historia.length()-indiceLetra);textoHistoria.append(historia.substring(indiceLetra,indiceLetra+n));indiceLetra+=n;}else{timerHistoria.stop();continuarHistoria.setEnabled(true);}});timerHistoria.start();}
+    private void finalizarHistoria(){if(timerHistoria!=null)timerHistoria.stop();textoHistoria.setText(historia);continuarHistoria.setEnabled(true);}
     private JPanel criarEscolha(){JPanel p=base();p.add(titulo("ESCOLHA SEU PERSONAGEM"),BorderLayout.NORTH);JPanel cards=new JPanel(new GridLayout(1,2,24,0));cards.setOpaque(false);cards.add(cardPersonagem("KAEL","O IRMÃO — Guerreiro / Atacante","Força, disciplina e um coração que nunca desiste.",imagemHeroiCompleta("Kael"),1));cards.add(cardPersonagem("LYRA","A IRMÃ — Suporte / Mágica","Conhecimento, empatia e um poder que inspira esperança.",imagemHeroiCompleta("Lyra"),2));p.add(cards);return p;}
     private JPanel cardPersonagem(String nome,String classe,String desc,String arq,int escolha){JPanel c=new JPanel(new BorderLayout(8,8));c.setBackground(PAINEL);c.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(AZUL,2),new EmptyBorder(14,20,14,20)));JLabel n=new JLabel("<html><center><font size='7'>"+nome+"</font><br>"+classe+"</center></html>",SwingConstants.CENTER);n.setForeground(OURO);c.add(n,BorderLayout.NORTH);JLabel foto=new JLabel(imagem(arq,330,330),SwingConstants.CENTER);c.add(foto);JTextArea d=new JTextArea(desc+"\n\n"+(escolha==1?"HP 120 • Mana 30":"HP 90 • Mana 60"));d.setEditable(false);d.setOpaque(false);d.setForeground(TEXTO);d.setFont(NORMAL);d.setLineWrap(true);d.setWrapStyleWord(true);JButton b=botao("SELECIONAR "+nome);b.addActionListener(e->iniciarJogo(escolha));JPanel sul=new JPanel(new BorderLayout(5,5));sul.setOpaque(false);sul.add(d);sul.add(b,BorderLayout.SOUTH);c.add(sul,BorderLayout.SOUTH);return c;}
     private void iniciarJogo(int lider){grupo=new Personagem[]{new Guerreiro(),new Suporte()}; if(lider==2){Personagem t=grupo[0];grupo[0]=grupo[1];grupo[1]=t;} wave=0;JPanel f=criarFloresta();raiz.add(f,"FLORESTA");telas.show(raiz,"FLORESTA");}
@@ -731,43 +735,22 @@ public class DeltaTriggerGUI {
     }
 
     private JPanel cabecalhoMochila(){
-        JPanel topo=new JPanel(new BorderLayout(10,7));
+        JPanel topo=new JPanel(new BorderLayout(10,8));
         topo.setOpaque(false);
-        JLabel t=titulo(mochilaEmBatalha?"ITEM DE BATALHA":"MOCHILA / INVENTÁRIO");
+        JLabel t=titulo(mochilaEmBatalha?"MOCHILA — ITEM DE BATALHA":"MOCHILA / INVENTÁRIO");
         topo.add(t,BorderLayout.NORTH);
-
-        if(mochilaEmBatalha){
-            JLabel info=new JLabel("Inventário de "+mochilaHeroi.getNome()+"  •  escolha abaixo quem receberá o item",SwingConstants.CENTER);
-            info.setForeground(TEXTO);info.setFont(new Font("Serif",Font.PLAIN,16));
-            topo.add(info,BorderLayout.CENTER);
-            JPanel linha=new JPanel(new FlowLayout(FlowLayout.CENTER,8,2));linha.setOpaque(false);
-            JLabel alvoTxt=new JLabel("ALVO:");alvoTxt.setForeground(OURO);alvoTxt.setFont(new Font("Serif",Font.BOLD,16));linha.add(alvoTxt);
-            for(Personagem h:grupo){
-                JButton b=botao(h.getNome().toUpperCase()+"  HP "+h.getVida()+"/"+h.getVidaMaxima());
-                b.setIcon(imagem(imagemHeroi(h),38,38));
-                b.setHorizontalTextPosition(SwingConstants.RIGHT);
-                b.setEnabled(h.vivo());
-                if(h==mochilaAlvoBatalha){
-                    b.setBackground(new Color(13,55,96));
-                    b.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(OURO,3),new EmptyBorder(6,11,6,11)));
-                }
-                b.addActionListener(e->{mochilaAlvoBatalha=h;atualizarMochila();});
-                linha.add(b);
-            }
-            topo.add(linha,BorderLayout.SOUTH);
-        }else{
-            JPanel herois=new JPanel(new FlowLayout(FlowLayout.CENTER,8,2));
-            herois.setOpaque(false);
-            for(Personagem h:grupo){
-                JButton b=botao(h.getNome().toUpperCase());
-                b.setIcon(imagem(imagemHeroi(h),38,38));
-                b.setHorizontalTextPosition(SwingConstants.RIGHT);
-                if(h==mochilaHeroi){b.setBackground(new Color(13,55,96));b.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(OURO,2),new EmptyBorder(7,12,7,12)));}
-                b.addActionListener(e->{mochilaHeroi=h;mochilaSelecionado=null;atualizarMochila();});
-                herois.add(b);
-            }
-            topo.add(herois,BorderLayout.SOUTH);
+        JPanel herois=new JPanel(new FlowLayout(FlowLayout.CENTER,8,2));
+        herois.setOpaque(false);
+        for(Personagem h:grupo){
+            JButton b=botao(h.getNome().toUpperCase());
+            b.setIcon(imagem(imagemHeroi(h),38,38));
+            b.setHorizontalTextPosition(SwingConstants.RIGHT);
+            b.setEnabled(!mochilaEmBatalha||h==heroiAtual());
+            if(h==mochilaHeroi){b.setBackground(new Color(13,55,96));b.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(OURO,2),new EmptyBorder(7,12,7,12)));}
+            b.addActionListener(e->{mochilaHeroi=h;mochilaSelecionado=null;atualizarMochila();});
+            herois.add(b);
         }
+        topo.add(herois,BorderLayout.SOUTH);
         return topo;
     }
 
@@ -867,7 +850,7 @@ public class DeltaTriggerGUI {
 
     private void usarItemDaMochila(Item it){
         if(it==null||!it.utilizavelEmBatalha())return;
-        Personagem alvo=mochilaEmBatalha?mochilaAlvoBatalha:escolherHeroiGUI("Usar "+it.getNome()+" em quem?");if(alvo==null){JOptionPane.showMessageDialog(mochilaDialog,"Selecione um aliado para receber o item.");return;}
+        Personagem alvo=escolherHeroiGUI("Usar "+it.getNome()+" em quem?");if(alvo==null)return;
         if(!alvo.vivo()){JOptionPane.showMessageDialog(mochilaDialog,"Esse personagem está derrotado.");return;}
         boolean util=(it.getCuraHp()>0&&alvo.getVida()<alvo.getVidaMaxima())||(it.getCuraMana()>0&&alvo.getMana()<alvo.getManaMaxima());
         if(!util){JOptionPane.showMessageDialog(mochilaDialog,"O item não teria efeito agora e não foi consumido.");return;}
@@ -893,23 +876,42 @@ public class DeltaTriggerGUI {
     private void abrirMochila(boolean emBatalha){
         if(grupo==null||grupo.length==0)return;
         mochilaEmBatalha=emBatalha;mochilaCategoria=emBatalha?"CONSUMÍVEIS":"TODOS";mochilaSelecionado=null;
-        if(emBatalha){mochilaHeroi=heroiAtual();mochilaAlvoBatalha=heroiAtual();}
+        if(emBatalha)mochilaHeroi=heroiAtual();
         else{boolean valido=false;if(mochilaHeroi!=null)for(Personagem h:grupo)if(h==mochilaHeroi)valido=true;if(!valido)mochilaHeroi=grupo[0];}
         mochilaDialog=new JDialog(janela,emBatalha?"Item — Batalha":"Mochila / Inventário",true);mochilaDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         Dimension sc=Toolkit.getDefaultToolkit().getScreenSize();mochilaDialog.setSize(Math.min(1260,sc.width-80),Math.min(820,sc.height-100));mochilaDialog.setMinimumSize(new Dimension(1040,680));mochilaDialog.setLocationRelativeTo(janela);
-        mochilaConteudo=painelFundo("inventario_bg.jpg");mochilaConteudo.setLayout(new BorderLayout(14,14));mochilaConteudo.setBorder(new EmptyBorder(14,14,14,14));mochilaDialog.setContentPane(mochilaConteudo);atualizarMochila();mochilaDialog.setVisible(true);
+        mochilaConteudo=painelFundo("grupo_inventario_bg.jpg");mochilaConteudo.setLayout(new BorderLayout(14,14));mochilaConteudo.setBorder(new EmptyBorder(14,14,14,14));mochilaDialog.setContentPane(mochilaConteudo);atualizarMochila();mochilaDialog.setVisible(true);
     }
 
     private void mostrarTransicao(){JPanel p=base();p.add(titulo("TRANSIÇÃO — CAMINHO PARA ELDORIA"),BorderLayout.NORTH);JLabel bg=new JLabel(imagem("forest_bg.png",900,430));p.add(bg);JTextArea t=new JTextArea("Com Fenrok derrotado, a floresta finalmente silencia.\n\nAo longe surgem as muralhas iluminadas de Eldoria. É hora de descansar, negociar e buscar informações sobre a energia estranha.");t.setEditable(false);t.setForeground(TEXTO);t.setBackground(PAINEL);t.setFont(new Font("Serif",Font.PLAIN,21));t.setBorder(new EmptyBorder(16,20,16,20));JButton seguir=botao("ENTRAR EM ELDORIA");seguir.addActionListener(e->mostrarEldoria());JPanel sul=new JPanel(new BorderLayout());sul.setOpaque(false);sul.add(t);sul.add(seguir,BorderLayout.EAST);p.add(sul,BorderLayout.SOUTH);raiz.add(p,"TRANSICAO");telas.show(raiz,"TRANSICAO");}
     private void mostrarEldoria(){
-        JPanel p=base();p.add(titulo("ELDORIA — CIDADE DOS VIAJANTES"),BorderLayout.NORTH);
-        JPanel centro=new JPanel(new GridLayout(2,3,18,18));centro.setOpaque(false);
-        String[][] locais={{"POUSADA","Descansar e salvar o progresso."},{"LOJA","Comprar, vender e equipar itens."},{"TAVERNA","Conversar com viajantes e procurar pistas."},{"GRUPO / INVENTÁRIO","Heróis, atributos e equipamentos."},{"MAPA DA JORNADA","Ver progresso e próximo objetivo."},{"CAVERNA DOS SLIMES","Seguir para a próxima missão."}};
-        for(String[] l:locais){
-            JButton b=botao("<html><center><font size='6'>"+l[0]+"</font><br><font size='4'>"+l[1]+"</font></center></html>");
-            if(l[0].equals("POUSADA"))b.addActionListener(e->pousadaGUI());else if(l[0].equals("LOJA"))b.addActionListener(e->lojaGUI());else if(l[0].equals("TAVERNA"))b.addActionListener(e->tavernaGUI());else if(l[0].equals("GRUPO / INVENTÁRIO"))b.addActionListener(e->painelGrupoInventario());else if(l[0].equals("MAPA DA JORNADA"))b.addActionListener(e->mostrarMapaProgresso());else b.addActionListener(e->entradaCavernaGUI());centro.add(b);
-        }
-        p.add(centro);JLabel rodape=new JLabel("Ouro do líder: $"+grupo[0].getDinheiro()+"   •   Próximo destino: Caverna dos Slimes",SwingConstants.CENTER);rodape.setForeground(OURO);rodape.setFont(NORMAL);p.add(rodape,BorderLayout.SOUTH);mostrarCard("ELDORIA",p);
+        JPanel p=base();
+        p.add(titulo("ELDORIA — CIDADE DOS VIAJANTES"),BorderLayout.NORTH);
+        JPanel centro=new JPanel(new GridLayout(2,3,18,18));
+        centro.setOpaque(false);
+
+        JButton pousada=cardLocalImagem("POUSADA","Descansar e salvar o progresso.","pousada_bg.jpg");
+        pousada.addActionListener(e->pousadaGUI());
+        JButton loja=cardLocalImagem("LOJA","Comprar, vender e equipar itens.","loja_bg.jpg");
+        loja.addActionListener(e->lojaGUI());
+        JButton taverna=cardLocalImagem("TAVERNA","Conversar com viajantes e procurar pistas.","taverna_bg.jpg");
+        taverna.addActionListener(e->tavernaGUI());
+        JButton grupoInv=cardLocalImagem("GRUPO / INVENTÁRIO","Heróis, atributos e equipamentos.","grupo_inventario_bg.jpg");
+        grupoInv.addActionListener(e->painelGrupoInventario());
+        JButton mapa=cardLocalImagem("MAPA DA JORNADA","Ver progresso e próximo objetivo.","menu_bg.jpg");
+        mapa.addActionListener(e->mostrarMapaProgresso());
+        JButton caverna=cardLocalImagem("CAVERNA DOS SLIMES","Seguir para a próxima missão.","slime_cave_bg.png");
+        caverna.addActionListener(e->entradaCavernaGUI());
+
+        centro.add(pousada); centro.add(loja); centro.add(taverna); centro.add(grupoInv); centro.add(mapa); centro.add(caverna);
+        p.add(centro,BorderLayout.CENTER);
+
+        JLabel rodape=new JLabel("Ouro do líder: $"+grupo[0].getDinheiro()+"   •   Próximo destino: Caverna dos Slimes",SwingConstants.CENTER);
+        rodape.setForeground(OURO);
+        rodape.setFont(new Font("Serif",Font.BOLD,20));
+        rodape.setBorder(new EmptyBorder(8,0,0,0));
+        p.add(rodape,BorderLayout.SOUTH);
+        mostrarCard("ELDORIA",p);
     }
 
     private void mostrarMapaProgresso(){
