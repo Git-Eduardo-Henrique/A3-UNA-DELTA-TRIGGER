@@ -1,0 +1,39 @@
+DELTA TRIGGER — REVISÃO DOS AMIGOS V11
+Base: GUI V10 + V3.1 console + PDF "mudar GUI.pdf"
+
+Principais correções aplicadas:
+01. Texto "desenvolvido por Delta Trigger®" no canto inferior do menu.
+02. Personagens maiores na seleção.
+03. Ícones da mochila reduzidos para não cortar.
+04. Ícones novos e mais claros para arma, cajado, arco, armadura, botas, HP/Mana e materiais.
+05. Inventário reorganizado e fundo recortado para evitar textos duplicados.
+06. Categorias da mochila padronizadas, sem diferença exagerada de escala, com transparência.
+07. Personagem do turno em corpo inteiro na batalha.
+08. Personagem centralizado no painel do turno.
+09. Lobos recortados sem o fundo/mini-sprites/texto da imagem original.
+10. Nomes de heróis e inimigos coloridos no log de batalha.
+11. Habilidades agora têm menu para escolher o golpe.
+12. Lyra possui Cura Individual e Cura em Grupo.
+13. Custos/danos das habilidades de Kael, Lyra e Elyra foram alinhados ao V3.1; Defender mantém defesa e recupera pequena quantidade de HP.
+14. Tela de Game Over mantida/validada.
+15. Mochila fica disponível após uma wave para recuperar o grupo antes de avançar.
+16. Ordem de rodada corrigida: todos os heróis vivos agem primeiro; depois agem os inimigos vivos.
+17. Card do mapa ganhou imagem de jornada.
+18. Textos/botões de continuação mantidos por extenso.
+19. Tela de Grupo com apenas Kael/Lyra não usa mais o fundo com personagens ainda bloqueados.
+20. Distribuição de atributos agora usa painel com botões "+" por atributo.
+21. Armas respeitam classe: espada/Kael, cajado/Lyra, arco/Elyra.
+22. Ouro é atualizado na loja após compra/venda.
+23. Venda permite escolher a quantidade de um item empilhado.
+24. Removido o atalho "Seguir para a Caverna" de dentro da Taverna; acesso fica no hub de Eldoria.
+25. Elyra ganhou imagem própria recortada do material fornecido, em vez de usar a arte da Lyra.
+26. Painel de detalhes da mochila foi simplificado e removeu a imagem decorativa grande da direita.
+27. Slime ganhou arte mais legível e integrada ao estilo da batalha.
+28. Elyra entra com Poções de Vida e Mana, além dos equipamentos iniciais.
+
+Também preservado:
+- História em formato de livro.
+- Hub de Eldoria com imagens nos cards.
+- Carregamento robusto dos assets, mesmo com Working Directory diferente no IntelliJ.
+
+Executar: src/MainGUI.java

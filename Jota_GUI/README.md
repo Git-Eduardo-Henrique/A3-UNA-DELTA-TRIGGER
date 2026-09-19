@@ -21,3 +21,12 @@ Abra `src/MainGUI.java` e rode `main()`.
 ## Revisão V7 - fundo do menu principal
 - A tela inicial agora usa `assets/menu_bg.jpg`, a nova arte de Aethoria enviada pelo usuário.
 - `forest_bg.png` continua preservado para Floresta dos Lobos e batalhas; apenas o menu principal foi alterado.
+
+
+## V10 - Correção de imagens
+
+Corrigido o carregamento de todos os arquivos da pasta `assets`.
+A GUI agora localiza as imagens mesmo quando o IntelliJ executa o projeto
+com o Working Directory na pasta-pai, em `out`, ou em outra pasta do projeto.
+
+Execute normalmente por `src/MainGUI.java`.

@@ -15,6 +15,8 @@ public class Elyra extends Personagem {
         inventario.adicionarEquipamento(armadura);
         equipar(arco);
         equipar(armadura);
+        inventario.adicionarItem(new Item("Pocao de Vida", "Pocao", 15, 30, 0, 2));
+        inventario.adicionarItem(new Item("Pocao de Mana", "Pocao", 18, 0, 20, 2));
     }
 
     @Override
