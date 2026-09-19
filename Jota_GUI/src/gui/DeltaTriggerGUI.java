@@ -13,6 +13,13 @@ public class DeltaTriggerGUI {
     private Personagem[] grupo; private javax.swing.Timer timerHistoria; private int indiceLetra; private int wave=0, turnoHeroi=0; private boolean batalhaCaverna=false; private int caveWave=0;
     private Inimigo[] inimigos=new Inimigo[0]; private JPanel arenaInimigos, painelGrupo; private JTextArea log; private JLabel waveLabel; private JButton proximaWave;
     private Inimigo alvoSelecionado;
+    // Estado da nova interface de mochila/inventário
+    private JDialog mochilaDialog;
+    private JPanel mochilaConteudo, mochilaCentro, mochilaGrid, mochilaDetalhes, mochilaEquipamentos;
+    private Personagem mochilaHeroi;
+    private Object mochilaSelecionado;
+    private String mochilaCategoria="TODOS";
+    private boolean mochilaEmBatalha=false;
     private static final Color FUNDO=new Color(2,10,24), PAINEL=new Color(5,18,36), AZUL=new Color(36,126,255), AZULC=new Color(126,200,255), OURO=new Color(226,166,58), TEXTO=new Color(235,242,250), VERDE=new Color(80,220,150);
     private static final Font TITULO=new Font("Serif",Font.BOLD,32), NORMAL=new Font("Serif",Font.PLAIN,17);
     private final String historia="Em um mundo fragmentado por antigas guerras, o equilíbrio entre os reinos está ameaçado.\n\nDizem que, nas profundezas das florestas do norte, algo despertou. Os lobos, antes apenas sombras nas montanhas, agora se organizam, mais fortes e mais inteligentes.\n\nKael e Lyra, dois irmãos unidos pelo mesmo propósito, partem para descobrir a origem dos ataques.\n\nE isso é apenas o começo...";
@@ -76,6 +83,49 @@ public class DeltaTriggerGUI {
         p.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(104,153,220),1),new EmptyBorder(8,8,8,8)));
         return p;
     }
+    private JPanel painelFundo(final String arquivo){
+        File f=asset(arquivo);
+        final Image fundo=f.exists()?new ImageIcon(f.getPath()).getImage():null;
+        JPanel p=new JPanel(new GridBagLayout()){
+            @Override protected void paintComponent(Graphics g){
+                super.paintComponent(g);
+                if(fundo==null)return;
+                int pw=getWidth(), ph=getHeight();
+                int iw=fundo.getWidth(this), ih=fundo.getHeight(this);
+                if(iw<=0||ih<=0)return;
+                double escala=Math.max((double)pw/iw,(double)ph/ih);
+                int w=(int)Math.round(iw*escala), h=(int)Math.round(ih*escala);
+                int x=(pw-w)/2, y=(ph-h)/2;
+                Graphics2D g2=(Graphics2D)g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g2.drawImage(fundo,x,y,w,h,this);
+                g2.setPaint(new GradientPaint(0,ph/2,new Color(0,5,15,0),0,ph,new Color(0,5,15,105)));
+                g2.fillRect(0,0,pw,ph);
+                g2.dispose();
+            }
+        };
+        p.setOpaque(true);p.setBackground(FUNDO);
+        return p;
+    }
+    private JPanel painelFlutuante(){
+        JPanel p=new JPanel(new BorderLayout(10,10)){
+            @Override protected void paintComponent(Graphics g){
+                Graphics2D g2=(Graphics2D)g.create();
+                g2.setColor(new Color(2,10,24,226));
+                g2.fillRoundRect(0,0,getWidth(),getHeight(),18,18);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        p.setOpaque(false);
+        p.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(OURO,2),new EmptyBorder(16,18,16,18)));
+        return p;
+    }
+    private JLabel labelLocal(String html){
+        JLabel l=new JLabel(html);l.setForeground(TEXTO);l.setFont(NORMAL);return l;
+    }
+    private void mostrarCard(String nome,JPanel tela){raiz.add(tela,nome);telas.show(raiz,nome);raiz.revalidate();raiz.repaint();}
+
     private JProgressBar barra(int valor,int maximo,Color cor,String texto){
         JProgressBar b=new JProgressBar(0,Math.max(1,maximo));
         b.setValue(Math.max(0,Math.min(valor,maximo)));
@@ -88,9 +138,88 @@ public class DeltaTriggerGUI {
         b.setPreferredSize(new Dimension(180,20));
         return b;
     }
+    private Icon iconeObjeto(final String nome, final int tamanho){
+        final String n=nome==null?"":nome.toLowerCase(Locale.ROOT);
+        return new Icon(){
+            public int getIconWidth(){return tamanho;}
+            public int getIconHeight(){return tamanho;}
+            public void paintIcon(Component c,Graphics g,int x,int y){
+                Graphics2D g2=(Graphics2D)g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(3,14,30));
+                g2.fillRoundRect(x,y,tamanho,tamanho,14,14);
+                g2.setColor(new Color(45,110,190));
+                g2.drawRoundRect(x+1,y+1,tamanho-3,tamanho-3,14,14);
+                int cx=x+tamanho/2, cy=y+tamanho/2;
+                if(n.contains("vida")||n.contains("hp")){
+                    g2.setColor(new Color(210,55,72));
+                    g2.fillRoundRect(cx-tamanho/7,cy-tamanho/7,tamanho/3,tamanho/3,8,8);
+                    g2.setColor(new Color(238,238,250));
+                    g2.fillRect(cx-tamanho/16,cy-tamanho/3,tamanho/8,tamanho/6);
+                    g2.setColor(new Color(240,96,115));
+                    g2.fillOval(cx-tamanho/5,cy-tamanho/12,tamanho*2/5,tamanho/3);
+                }else if(n.contains("mana")){
+                    g2.setColor(new Color(48,130,255));
+                    Polygon p=new Polygon();p.addPoint(cx,cy-tamanho/3);p.addPoint(cx-tamanho/5,cy+tamanho/6);p.addPoint(cx,cy+tamanho/3);p.addPoint(cx+tamanho/5,cy+tamanho/6);g2.fillPolygon(p);
+                    g2.setColor(new Color(120,205,255));g2.drawPolygon(p);
+                }else if(n.contains("espada")){
+                    g2.setStroke(new BasicStroke(Math.max(3,tamanho/12f),BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+                    g2.setColor(new Color(220,228,240));g2.drawLine(cx-tamanho/4,cy+tamanho/4,cx+tamanho/4,cy-tamanho/4);
+                    g2.setColor(OURO);g2.drawLine(cx-tamanho/4,cy+tamanho/7,cx-tamanho/10,cy+tamanho/3);
+                    g2.setColor(new Color(120,75,38));g2.drawLine(cx-tamanho/3,cy+tamanho/3,cx-tamanho/5,cy+tamanho/5);
+                }else if(n.contains("cajado")){
+                    g2.setStroke(new BasicStroke(Math.max(3,tamanho/13f),BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+                    g2.setColor(new Color(132,85,44));g2.drawLine(cx-tamanho/5,cy+tamanho/3,cx+tamanho/7,cy-tamanho/4);
+                    g2.setColor(AZULC);g2.fillOval(cx-tamanho/12,cy-tamanho/3,tamanho/4,tamanho/4);
+                    g2.setColor(OURO);g2.drawOval(cx-tamanho/12,cy-tamanho/3,tamanho/4,tamanho/4);
+                }else if(n.contains("arco")){
+                    g2.setColor(new Color(176,116,52));g2.setStroke(new BasicStroke(Math.max(3,tamanho/14f)));
+                    g2.drawArc(cx-tamanho/3,cy-tamanho/3,tamanho*2/3,tamanho*2/3,-70,140);
+                    g2.setColor(new Color(220,228,240));g2.drawLine(cx+tamanho/5,cy-tamanho/4,cx+tamanho/5,cy+tamanho/4);
+                }else if(n.contains("armadura")||n.contains("vestimenta")){
+                    Polygon p=new Polygon();p.addPoint(cx-tamanho/4,cy-tamanho/4);p.addPoint(cx,cy-tamanho/6);p.addPoint(cx+tamanho/4,cy-tamanho/4);p.addPoint(cx+tamanho/3,cy+tamanho/5);p.addPoint(cx,cy+tamanho/3);p.addPoint(cx-tamanho/3,cy+tamanho/5);
+                    g2.setColor(new Color(92,108,132));g2.fillPolygon(p);g2.setColor(OURO);g2.drawPolygon(p);
+                    g2.setColor(AZUL);g2.fillRect(cx-tamanho/16,cy-tamanho/10,tamanho/8,tamanho/4);
+                }else if(n.contains("botas")||n.contains("bota")){
+                    g2.setColor(new Color(112,70,38));g2.fillRoundRect(cx-tamanho/5,cy-tamanho/4,tamanho/5,tamanho/2,6,6);g2.fillRoundRect(cx,cy-tamanho/5,tamanho/4,tamanho/2,6,6);
+                    g2.setColor(OURO);g2.drawRoundRect(cx-tamanho/5,cy-tamanho/4,tamanho/5,tamanho/2,6,6);g2.drawRoundRect(cx,cy-tamanho/5,tamanho/4,tamanho/2,6,6);
+                }else if(n.contains("chifre")){
+                    g2.setColor(new Color(224,214,184));g2.setStroke(new BasicStroke(Math.max(4,tamanho/11f),BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+                    g2.drawArc(cx-tamanho/4,cy-tamanho/4,tamanho/2,tamanho/2,20,180);
+                    g2.setColor(OURO);g2.drawArc(cx-tamanho/4+2,cy-tamanho/4+2,tamanho/2-4,tamanho/2-4,20,180);
+                }else{
+                    Polygon d=new Polygon();d.addPoint(cx,cy-tamanho/3);d.addPoint(cx+tamanho/4,cy);d.addPoint(cx,cy+tamanho/3);d.addPoint(cx-tamanho/4,cy);
+                    g2.setColor(AZUL);g2.fillPolygon(d);g2.setColor(AZULC);g2.drawPolygon(d);
+                }
+                g2.dispose();
+            }
+        };
+    }
+
+    private boolean estaEquipado(Personagem h,Equipamento e){
+        return h!=null&&e!=null&&(e==h.getArmaEquipada()||e==h.getArmaduraEquipada()||e==h.getBotasEquipadas());
+    }
+
+    private String bonusEquipamentoHtml(Equipamento e){
+        StringBuilder s=new StringBuilder();
+        if(e.getForca()!=0)s.append("Força +").append(e.getForca()).append("<br>");
+        if(e.getDefesa()!=0)s.append("Defesa +").append(e.getDefesa()).append("<br>");
+        if(e.getInteligencia()!=0)s.append("Inteligência +").append(e.getInteligencia()).append("<br>");
+        if(e.getResistencia()!=0)s.append("Resistência +").append(e.getResistencia()).append("<br>");
+        if(e.getVelocidade()!=0)s.append("Velocidade +").append(e.getVelocidade()).append("<br>");
+        if(e.getSorte()!=0)s.append("Sorte +").append(e.getSorte()).append("<br>");
+        if(s.length()==0)s.append("Sem bônus adicionais");
+        return s.toString();
+    }
+
     private String imagemHeroi(Personagem h){
-        if(h.getNome().equals("Kael"))return "kael_clean.png";
-        if(h.getNome().equals("Lyra"))return "lyra_clean.png";
+        if(h.getNome().equals("Kael"))return "kael_portrait_v2.png";
+        if(h.getNome().equals("Lyra"))return "lyra_portrait_v2.png";
+        return "lyra_clean.png"; // Elyra: arte provisória até a imagem própria ficar pronta
+    }
+    private String imagemHeroiCompleta(String nome){
+        if("Kael".equals(nome))return "kael_full_v2.png";
+        if("Lyra".equals(nome))return "lyra_full_v2.png";
         return "lyra_clean.png";
     }
     private String nomeCenarioBatalha(){
@@ -105,8 +234,8 @@ public class DeltaTriggerGUI {
     private JPanel criarHistoria(){JPanel p=base();p.add(titulo("HISTÓRIA"),BorderLayout.NORTH);textoHistoria=new JTextArea();textoHistoria.setEditable(false);textoHistoria.setLineWrap(true);textoHistoria.setWrapStyleWord(true);textoHistoria.setFont(new Font("Serif",Font.PLAIN,22));textoHistoria.setForeground(TEXTO);textoHistoria.setBackground(PAINEL);textoHistoria.setBorder(new EmptyBorder(55,80,55,80));JScrollPane sp=new JScrollPane(textoHistoria);sp.setBorder(BorderFactory.createLineBorder(OURO,2));p.add(sp);continuarHistoria=botao("CONTINUAR");continuarHistoria.setEnabled(false);continuarHistoria.addActionListener(e->telas.show(raiz,"ESCOLHA"));JButton pular=botao("MOSTRAR TEXTO TODO");pular.addActionListener(e->finalizarHistoria());JPanel s=new JPanel(new FlowLayout(FlowLayout.CENTER,15,0));s.setOpaque(false);s.add(pular);s.add(continuarHistoria);p.add(s,BorderLayout.SOUTH);return p;}
     private void iniciarHistoria(){textoHistoria.setText("");indiceLetra=0;continuarHistoria.setEnabled(false);telas.show(raiz,"HISTORIA");if(timerHistoria!=null)timerHistoria.stop();timerHistoria=new javax.swing.Timer(28,e->{if(indiceLetra<historia.length()){int n=Math.min(2,historia.length()-indiceLetra);textoHistoria.append(historia.substring(indiceLetra,indiceLetra+n));indiceLetra+=n;}else{timerHistoria.stop();continuarHistoria.setEnabled(true);}});timerHistoria.start();}
     private void finalizarHistoria(){if(timerHistoria!=null)timerHistoria.stop();textoHistoria.setText(historia);continuarHistoria.setEnabled(true);}
-    private JPanel criarEscolha(){JPanel p=base();p.add(titulo("ESCOLHA SEU PERSONAGEM"),BorderLayout.NORTH);JPanel cards=new JPanel(new GridLayout(1,2,24,0));cards.setOpaque(false);cards.add(cardPersonagem("KAEL","O IRMÃO — Guerreiro / Atacante","Força, disciplina e um coração que nunca desiste.","kael_clean.png",1));cards.add(cardPersonagem("LYRA","A IRMÃ — Suporte / Mágica","Conhecimento, empatia e um poder que inspira esperança.","lyra_clean.png",2));p.add(cards);return p;}
-    private JPanel cardPersonagem(String nome,String classe,String desc,String arq,int escolha){JPanel c=new JPanel(new BorderLayout(8,8));c.setBackground(PAINEL);c.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(AZUL,2),new EmptyBorder(14,20,14,20)));JLabel n=new JLabel("<html><center><font size='7'>"+nome+"</font><br>"+classe+"</center></html>",SwingConstants.CENTER);n.setForeground(OURO);c.add(n,BorderLayout.NORTH);JLabel foto=new JLabel(imagem(arq,300,390),SwingConstants.CENTER);c.add(foto);JTextArea d=new JTextArea(desc+"\n\n"+(escolha==1?"HP 120 • Mana 30":"HP 90 • Mana 60"));d.setEditable(false);d.setOpaque(false);d.setForeground(TEXTO);d.setFont(NORMAL);d.setLineWrap(true);d.setWrapStyleWord(true);JButton b=botao("SELECIONAR "+nome);b.addActionListener(e->iniciarJogo(escolha));JPanel sul=new JPanel(new BorderLayout(5,5));sul.setOpaque(false);sul.add(d);sul.add(b,BorderLayout.SOUTH);c.add(sul,BorderLayout.SOUTH);return c;}
+    private JPanel criarEscolha(){JPanel p=base();p.add(titulo("ESCOLHA SEU PERSONAGEM"),BorderLayout.NORTH);JPanel cards=new JPanel(new GridLayout(1,2,24,0));cards.setOpaque(false);cards.add(cardPersonagem("KAEL","O IRMÃO — Guerreiro / Atacante","Força, disciplina e um coração que nunca desiste.",imagemHeroiCompleta("Kael"),1));cards.add(cardPersonagem("LYRA","A IRMÃ — Suporte / Mágica","Conhecimento, empatia e um poder que inspira esperança.",imagemHeroiCompleta("Lyra"),2));p.add(cards);return p;}
+    private JPanel cardPersonagem(String nome,String classe,String desc,String arq,int escolha){JPanel c=new JPanel(new BorderLayout(8,8));c.setBackground(PAINEL);c.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(AZUL,2),new EmptyBorder(14,20,14,20)));JLabel n=new JLabel("<html><center><font size='7'>"+nome+"</font><br>"+classe+"</center></html>",SwingConstants.CENTER);n.setForeground(OURO);c.add(n,BorderLayout.NORTH);JLabel foto=new JLabel(imagem(arq,330,330),SwingConstants.CENTER);c.add(foto);JTextArea d=new JTextArea(desc+"\n\n"+(escolha==1?"HP 120 • Mana 30":"HP 90 • Mana 60"));d.setEditable(false);d.setOpaque(false);d.setForeground(TEXTO);d.setFont(NORMAL);d.setLineWrap(true);d.setWrapStyleWord(true);JButton b=botao("SELECIONAR "+nome);b.addActionListener(e->iniciarJogo(escolha));JPanel sul=new JPanel(new BorderLayout(5,5));sul.setOpaque(false);sul.add(d);sul.add(b,BorderLayout.SOUTH);c.add(sul,BorderLayout.SOUTH);return c;}
     private void iniciarJogo(int lider){grupo=new Personagem[]{new Guerreiro(),new Suporte()}; if(lider==2){Personagem t=grupo[0];grupo[0]=grupo[1];grupo[1]=t;} wave=0;JPanel f=criarFloresta();raiz.add(f,"FLORESTA");telas.show(raiz,"FLORESTA");}
     private JPanel criarFloresta(){JPanel p=base();p.add(titulo("FLORESTA DOS LOBOS — ÁREA NORMAL"),BorderLayout.NORTH);JLabel bg=new JLabel(imagem("forest_bg.png",900,440));bg.setBorder(BorderFactory.createLineBorder(AZUL,2));p.add(bg);JTextArea txt=new JTextArea("> Você entrou na Floresta dos Lobos.\nO som da água ecoa pelas rochas. Há pegadas recentes no caminho.\n\nObjetivo: atravesse as ondas de lobos e encontre Fenrok.");txt.setEditable(false);txt.setForeground(TEXTO);txt.setBackground(PAINEL);txt.setFont(NORMAL);txt.setRows(5);txt.setBorder(new EmptyBorder(10,12,10,12));JButton explorar=botao("EXPLORAR / INICIAR ONDAS"), inv=botao("INVENTÁRIO"), pers=botao("GRUPO");explorar.addActionListener(e->{wave=0;proximaOnda();});inv.addActionListener(e->mostrarInventario());pers.addActionListener(e->mostrarGrupo());JPanel bs=new JPanel(new FlowLayout(FlowLayout.LEFT));bs.setOpaque(false);bs.add(explorar);bs.add(inv);bs.add(pers);JPanel s=new JPanel(new BorderLayout());s.setOpaque(false);s.add(txt);s.add(bs,BorderLayout.SOUTH);p.add(s,BorderLayout.SOUTH);return p;}
     private void proximaOnda(){wave++;if(wave==1)inimigos=new Inimigo[]{LoboFactory.criarLobinho(),LoboFactory.criarLobinho(),LoboFactory.criarLobinho()};else if(wave==2)inimigos=new Inimigo[]{LoboFactory.criarLobinho(),LoboFactory.criarLobinho(),LoboFactory.criarLobinho()};else if(wave==3)inimigos=new Inimigo[]{LoboFactory.criarLobo(),LoboFactory.criarLobo()};else if(wave==4)inimigos=new Inimigo[]{LoboFactory.criarLobo(),LoboFactory.criarLobo(),LoboFactory.criarLobo()};else if(wave==5)inimigos=new Inimigo[]{new Fenrok()};else{mostrarTransicao();return;}turnoHeroi=0;JPanel b=criarBatalha();raiz.add(b,"BATALHA");telas.show(raiz,"BATALHA");}
@@ -196,7 +325,7 @@ public class DeltaTriggerGUI {
         JLabel turno=new JLabel("TURNO DE "+ativo.getNome().toUpperCase(),SwingConstants.CENTER);
         turno.setForeground(OURO);turno.setFont(new Font("Serif",Font.BOLD,18));
         cardAtivo.add(turno,BorderLayout.NORTH);
-        JLabel foto=new JLabel(imagem(imagemHeroi(ativo),185,245),SwingConstants.CENTER);
+        JLabel foto=new JLabel(imagem(imagemHeroi(ativo),205,205),SwingConstants.CENTER);
         cardAtivo.add(foto,BorderLayout.CENTER);
         JPanel stats=new JPanel();stats.setOpaque(false);stats.setLayout(new BoxLayout(stats,BoxLayout.Y_AXIS));
         JLabel nome=new JLabel(ativo.getNome()+"  •  Nv. "+ativo.getNivel(),SwingConstants.CENTER);nome.setForeground(TEXTO);nome.setAlignmentX(.5f);
@@ -216,7 +345,7 @@ public class DeltaTriggerGUI {
             if(h==ativo)continue;
             JPanel mini=new JPanel(new BorderLayout(7,2));mini.setBackground(new Color(5,18,36));
             mini.setBorder(BorderFactory.createLineBorder(h.vivo()?new Color(55,115,185):Color.DARK_GRAY,1));
-            mini.add(new JLabel(imagem(imagemHeroi(h),58,72),SwingConstants.CENTER),BorderLayout.WEST);
+            mini.add(new JLabel(imagem(imagemHeroi(h),58,58),SwingConstants.CENTER),BorderLayout.WEST);
             JPanel ms=new JPanel();ms.setOpaque(false);ms.setLayout(new BoxLayout(ms,BoxLayout.Y_AXIS));
             JLabel mn=new JLabel(h.getNome()+" • Nv. "+h.getNivel());mn.setForeground(h.vivo()?TEXTO:Color.GRAY);
             ms.add(mn);
@@ -289,32 +418,231 @@ public class DeltaTriggerGUI {
     private boolean haInimigoVivo(){for(Inimigo e:inimigos)if(e.vivo())return true;return false;} private boolean haHeroiVivo(){for(Personagem h:grupo)if(h.vivo())return true;return false;}
     private void vitoriaOnda(){int ouro=0;for(Inimigo e:inimigos){ouro+=e.getRecompensa();for(Item it:e.sortearDrops())grupo[0].getInventario().adicionarItem(it);Item m=e.sortearMaterial();if(m!=null)grupo[0].getInventario().adicionarItem(m);}grupo[0].adicionarDinheiro(ouro);log.append("\n\nVITÓRIA! Recompensa: $"+ouro+" e possíveis itens/materiais adicionados ao inventário.");if(batalhaCaverna){ if(caveWave==4){log.append("\nO Rei Slime foi derrotado! A Caverna 1 está concluída.");proximaWave.setText("CONCLUIR CAPÍTULO");} else proximaWave.setText("PRÓXIMA ONDA"); } else if(wave==5){for(Personagem h:grupo)h.subirNivel();log.append("\nFenrok foi derrotado. O grupo subiu de nível e recebeu 3 pontos de atributo por personagem! O caminho para Eldoria foi aberto!");proximaWave.setText("CONTINUAR PARA ELDORIA");}else proximaWave.setText("PRÓXIMA ONDA");proximaWave.setVisible(true);atualizarCombatentes();}
     private void mostrarItensBatalha(){
-        Personagem dono=grupo[0]; java.util.List<Item> disponiveis=new ArrayList<Item>();
-        for(Item it:dono.getInventario().getItens()) if(it.utilizavelEmBatalha() && it.getQuantidade()>0) disponiveis.add(it);
-        if(disponiveis.isEmpty()){JOptionPane.showMessageDialog(janela,"Nenhum consumível utilizável em batalha.","Itens",JOptionPane.INFORMATION_MESSAGE);return;}
-        String[] op=new String[disponiveis.size()]; for(int i=0;i<op.length;i++){Item it=disponiveis.get(i);op[i]=it.getNome()+" x"+it.getQuantidade()+" — "+(it.getCuraHp()>0?"HP +"+it.getCuraHp():"Mana +"+it.getCuraMana());}
-        String escolha=(String)JOptionPane.showInputDialog(janela,"Escolha um consumível:","ITEM — BATALHA",JOptionPane.PLAIN_MESSAGE,null,op,op[0]); if(escolha==null)return;
-        Item it=disponiveis.get(Arrays.asList(op).indexOf(escolha)); Personagem alvo=escolherHeroiGUI("Usar "+it.getNome()+" em quem?"); if(alvo==null)return;
-        if(!alvo.vivo()){JOptionPane.showMessageDialog(janela,"Esse personagem está derrotado.");return;}
-        boolean util=(it.getCuraHp()>0 && alvo.getVida()<alvo.getVidaMaxima()) || (it.getCuraMana()>0 && alvo.getMana()<alvo.getManaMaxima());
-        if(!util){JOptionPane.showMessageDialog(janela,"O item não teria efeito agora e não foi consumido.");return;}
-        int hp0=alvo.getVida(), mp0=alvo.getMana(); alvo.curar(it.getCuraHp()); alvo.curarMana(it.getCuraMana()); dono.getInventario().removerUmaUnidade(it);
-        log.append("\n"+heroiAtual().getNome()+" usou "+it.getNome()+" em "+alvo.getNome()+" (HP +"+(alvo.getVida()-hp0)+", Mana +"+(alvo.getMana()-mp0)+")."); fimAcao();
+        abrirMochila(true);
     }
+
+    private JPanel cabecalhoMochila(){
+        JPanel topo=new JPanel(new BorderLayout(10,8));
+        topo.setOpaque(false);
+        JLabel t=titulo(mochilaEmBatalha?"MOCHILA — ITEM DE BATALHA":"MOCHILA / INVENTÁRIO");
+        topo.add(t,BorderLayout.NORTH);
+        JPanel herois=new JPanel(new FlowLayout(FlowLayout.CENTER,8,2));
+        herois.setOpaque(false);
+        for(Personagem h:grupo){
+            JButton b=botao(h.getNome().toUpperCase());
+            b.setIcon(imagem(imagemHeroi(h),38,38));
+            b.setHorizontalTextPosition(SwingConstants.RIGHT);
+            b.setEnabled(!mochilaEmBatalha||h==heroiAtual());
+            if(h==mochilaHeroi){b.setBackground(new Color(13,55,96));b.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(OURO,2),new EmptyBorder(7,12,7,12)));}
+            b.addActionListener(e->{mochilaHeroi=h;mochilaSelecionado=null;atualizarMochila();});
+            herois.add(b);
+        }
+        topo.add(herois,BorderLayout.SOUTH);
+        return topo;
+    }
+
+    private JPanel painelPerfilMochila(){
+        JPanel p=moldura();
+        p.setPreferredSize(new Dimension(245,565));
+        JLabel nome=new JLabel("<html><center><font size='6'>"+mochilaHeroi.getNome()+"</font><br>Nível "+mochilaHeroi.getNivel()+"</center></html>",SwingConstants.CENTER);
+        nome.setForeground(OURO);p.add(nome,BorderLayout.NORTH);
+        p.add(new JLabel(imagem(imagemHeroi(mochilaHeroi),205,205),SwingConstants.CENTER),BorderLayout.CENTER);
+        JPanel inf=new JPanel();inf.setOpaque(false);inf.setLayout(new BoxLayout(inf,BoxLayout.Y_AXIS));
+        JProgressBar hp=barra(mochilaHeroi.getVida(),mochilaHeroi.getVidaMaxima(),new Color(205,58,72),"HP  "+mochilaHeroi.getVida()+" / "+mochilaHeroi.getVidaMaxima());
+        JProgressBar mp=barra(mochilaHeroi.getMana(),mochilaHeroi.getManaMaxima(),new Color(40,130,245),"MP  "+mochilaHeroi.getMana()+" / "+mochilaHeroi.getManaMaxima());
+        hp.setAlignmentX(.5f);mp.setAlignmentX(.5f);inf.add(hp);inf.add(Box.createVerticalStrut(6));inf.add(mp);inf.add(Box.createVerticalStrut(12));
+        JLabel ouro=new JLabel("Ouro: $"+mochilaHeroi.getDinheiro(),SwingConstants.CENTER);ouro.setForeground(OURO);ouro.setAlignmentX(.5f);inf.add(ouro);inf.add(Box.createVerticalStrut(10));
+        JButton attrs=botao("ATRIBUTOS");attrs.setAlignmentX(.5f);attrs.addActionListener(e->{distribuirPontosGUI();atualizarMochila();});inf.add(attrs);
+        p.add(inf,BorderLayout.SOUTH);
+        return p;
+    }
+
+    private JPanel slotEquip(String tituloSlot,Equipamento e){
+        JPanel s=new JPanel(new BorderLayout(6,4));s.setBackground(new Color(3,14,29));s.setBorder(BorderFactory.createLineBorder(e==null?new Color(55,82,115):OURO,1));
+        JLabel ic=new JLabel(e==null?iconeObjeto(tituloSlot,44):iconeObjeto(e.getNome(),44));s.add(ic,BorderLayout.WEST);
+        JLabel tx=new JLabel("<html><b>"+tituloSlot+"</b><br>"+(e==null?"<font color='#74859b'>Vazio</font>":e.getNome())+"</html>");tx.setForeground(TEXTO);s.add(tx,BorderLayout.CENTER);
+        return s;
+    }
+
+    private JPanel painelEquipamentosMochila(){
+        JPanel p=moldura();p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));p.setPreferredSize(new Dimension(245,200));
+        JLabel t=new JLabel("EQUIPADO",SwingConstants.CENTER);t.setForeground(AZULC);t.setFont(new Font("Serif",Font.BOLD,16));t.setAlignmentX(.5f);p.add(t);p.add(Box.createVerticalStrut(7));
+        p.add(slotEquip("ARMA",mochilaHeroi.getArmaEquipada()));p.add(Box.createVerticalStrut(5));
+        p.add(slotEquip("ARMADURA",mochilaHeroi.getArmaduraEquipada()));p.add(Box.createVerticalStrut(5));
+        p.add(slotEquip("BOTAS",mochilaHeroi.getBotasEquipadas()));
+        return p;
+    }
+
+    private java.util.List<Object> objetosMochila(){
+        java.util.List<Object> r=new ArrayList<Object>();
+        if(!"EQUIPAMENTOS".equals(mochilaCategoria)) for(Item i:mochilaHeroi.getInventario().getItens()) if(!mochilaEmBatalha||i.utilizavelEmBatalha())r.add(i);
+        if(!mochilaEmBatalha&&!"CONSUMÍVEIS".equals(mochilaCategoria))r.addAll(mochilaHeroi.getInventario().getEquipamentos());
+        return r;
+    }
+
+    private JButton slotMochila(Object o){
+        String nome=o instanceof Item?((Item)o).getNome():((Equipamento)o).getNome();
+        String extra=o instanceof Item?"x"+((Item)o).getQuantidade():(((Equipamento)o).getTipo());
+        JButton b=new JButton("<html><center>"+nome+"<br><font color='#8fb8e8'>"+extra+"</font></center></html>",iconeObjeto(nome,58));
+        b.setVerticalTextPosition(SwingConstants.BOTTOM);b.setHorizontalTextPosition(SwingConstants.CENTER);
+        b.setForeground(TEXTO);b.setBackground(new Color(4,18,37));b.setFocusPainted(false);b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        boolean sel=o==mochilaSelecionado;boolean eq=o instanceof Equipamento&&estaEquipado(mochilaHeroi,(Equipamento)o);
+        b.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(sel?OURO:(eq?AZULC:new Color(44,91,145)),sel?3:1),new EmptyBorder(5,4,5,4)));
+        b.addActionListener(e->{mochilaSelecionado=o;atualizarMochila();});
+        return b;
+    }
+
+    private JPanel painelGradeMochila(){
+        JPanel wrap=new JPanel(new BorderLayout(8,8));wrap.setOpaque(false);
+        JPanel cats=new JPanel(new FlowLayout(FlowLayout.LEFT,7,0));cats.setOpaque(false);
+        String[] nomes=mochilaEmBatalha?new String[]{"CONSUMÍVEIS"}:new String[]{"TODOS","CONSUMÍVEIS","EQUIPAMENTOS"};
+        for(String c:nomes){JButton b=botao(c);if(c.equals(mochilaCategoria)){b.setBackground(new Color(12,50,90));b.setBorder(BorderFactory.createLineBorder(OURO,2));}b.addActionListener(e->{mochilaCategoria=c;mochilaSelecionado=null;atualizarMochila();});cats.add(b);}wrap.add(cats,BorderLayout.NORTH);
+        mochilaGrid=new JPanel(new GridLayout(4,5,8,8));mochilaGrid.setOpaque(false);
+        java.util.List<Object> obs=objetosMochila();
+        for(int i=0;i<20;i++){
+            if(i<obs.size())mochilaGrid.add(slotMochila(obs.get(i)));
+            else{JPanel vazio=new JPanel();vazio.setBackground(new Color(3,13,28));vazio.setBorder(BorderFactory.createLineBorder(new Color(30,58,92),1));mochilaGrid.add(vazio);}
+        }
+        JPanel mold=moldura();mold.add(mochilaGrid,BorderLayout.CENTER);
+        JLabel cap=new JLabel("MOCHILA  •  "+obs.size()+" / 20 slots",SwingConstants.RIGHT);cap.setForeground(new Color(130,160,195));mold.add(cap,BorderLayout.SOUTH);
+        wrap.add(mold,BorderLayout.CENTER);return wrap;
+    }
+
+    private JPanel painelDetalhesMochila(){
+        JPanel p=moldura();p.setPreferredSize(new Dimension(285,565));
+        if(mochilaSelecionado==null){
+            JLabel v=new JLabel("<html><center><font size='5'>SELECIONE UM ITEM</font><br><br><font color='#7c93ad'>Clique em um slot da mochila<br>para ver detalhes e ações.</font></center></html>",SwingConstants.CENTER);v.setForeground(AZULC);p.add(v);return p;
+        }
+        String nome=mochilaSelecionado instanceof Item?((Item)mochilaSelecionado).getNome():((Equipamento)mochilaSelecionado).getNome();
+        JLabel icon=new JLabel(iconeObjeto(nome,130),SwingConstants.CENTER);p.add(icon,BorderLayout.NORTH);
+        JPanel centro=new JPanel();centro.setOpaque(false);centro.setLayout(new BoxLayout(centro,BoxLayout.Y_AXIS));
+        JLabel n=new JLabel("<html><center><font size='6'>"+nome+"</font></center></html>",SwingConstants.CENTER);n.setForeground(OURO);n.setAlignmentX(.5f);centro.add(n);centro.add(Box.createVerticalStrut(8));
+        if(mochilaSelecionado instanceof Item){
+            Item it=(Item)mochilaSelecionado;
+            String efeito=it.getCuraHp()>0?"Recupera "+it.getCuraHp()+" HP":it.getCuraMana()>0?"Recupera "+it.getCuraMana()+" Mana":"Material / item de venda";
+            JLabel d=new JLabel("<html><center>Tipo: "+it.getTipo()+"<br>Quantidade: x"+it.getQuantidade()+"<br>Valor: $"+it.getPreco()+"<br><br><font color='#9fc6ef'>"+efeito+"</font></center></html>",SwingConstants.CENTER);d.setForeground(TEXTO);d.setAlignmentX(.5f);centro.add(d);
+        }else{
+            Equipamento eq=(Equipamento)mochilaSelecionado;
+            JLabel d=new JLabel("<html><center>Tipo: "+eq.getTipo()+"<br>Valor: $"+eq.getPreco()+"<br><br><font color='#9fc6ef'>"+bonusEquipamentoHtml(eq)+"</font>"+(estaEquipado(mochilaHeroi,eq)?"<br><br><font color='#e2a63a'><b>EQUIPADO</b></font>":"")+"</center></html>",SwingConstants.CENTER);d.setForeground(TEXTO);d.setAlignmentX(.5f);centro.add(d);
+        }
+        p.add(centro,BorderLayout.CENTER);
+        JPanel acoes=new JPanel(new GridLayout(0,1,5,5));acoes.setOpaque(false);
+        if(mochilaSelecionado instanceof Item){
+            Item it=(Item)mochilaSelecionado;JButton usar=botao("USAR ITEM");usar.setEnabled(it.utilizavelEmBatalha());usar.addActionListener(e->usarItemDaMochila(it));acoes.add(usar);
+        }else if(!mochilaEmBatalha){
+            Equipamento eq=(Equipamento)mochilaSelecionado;JButton equipar=botao(estaEquipado(mochilaHeroi,eq)?"JÁ EQUIPADO":"EQUIPAR");equipar.setEnabled(!estaEquipado(mochilaHeroi,eq));equipar.addActionListener(e->{mochilaHeroi.equipar(eq);atualizarMochila();});acoes.add(equipar);
+        }
+        p.add(acoes,BorderLayout.SOUTH);return p;
+    }
+
+    private void usarItemDaMochila(Item it){
+        if(it==null||!it.utilizavelEmBatalha())return;
+        Personagem alvo=escolherHeroiGUI("Usar "+it.getNome()+" em quem?");if(alvo==null)return;
+        if(!alvo.vivo()){JOptionPane.showMessageDialog(mochilaDialog,"Esse personagem está derrotado.");return;}
+        boolean util=(it.getCuraHp()>0&&alvo.getVida()<alvo.getVidaMaxima())||(it.getCuraMana()>0&&alvo.getMana()<alvo.getManaMaxima());
+        if(!util){JOptionPane.showMessageDialog(mochilaDialog,"O item não teria efeito agora e não foi consumido.");return;}
+        int hp0=alvo.getVida(),mp0=alvo.getMana();alvo.curar(it.getCuraHp());alvo.curarMana(it.getCuraMana());mochilaHeroi.getInventario().removerUmaUnidade(it);
+        if(mochilaEmBatalha){
+            if(log!=null)log.append("\n"+heroiAtual().getNome()+" usou "+it.getNome()+" em "+alvo.getNome()+" (HP +"+(alvo.getVida()-hp0)+", Mana +"+(alvo.getMana()-mp0)+").");
+            mochilaDialog.dispose();fimAcao();
+        }else atualizarMochila();
+    }
+
+    private void atualizarMochila(){
+        if(mochilaDialog==null||mochilaConteudo==null)return;
+        mochilaConteudo.removeAll();
+        mochilaConteudo.add(cabecalhoMochila(),BorderLayout.NORTH);
+        JPanel corpo=new JPanel(new BorderLayout(12,0));corpo.setOpaque(false);
+        JPanel esquerda=new JPanel(new BorderLayout(8,8));esquerda.setOpaque(false);esquerda.add(painelPerfilMochila(),BorderLayout.CENTER);esquerda.add(painelEquipamentosMochila(),BorderLayout.SOUTH);corpo.add(esquerda,BorderLayout.WEST);
+        corpo.add(painelGradeMochila(),BorderLayout.CENTER);corpo.add(painelDetalhesMochila(),BorderLayout.EAST);
+        mochilaConteudo.add(corpo,BorderLayout.CENTER);
+        JPanel sul=new JPanel(new FlowLayout(FlowLayout.RIGHT));sul.setOpaque(false);JButton fechar=botao(mochilaEmBatalha?"VOLTAR À BATALHA":"FECHAR MOCHILA");fechar.addActionListener(e->mochilaDialog.dispose());sul.add(fechar);mochilaConteudo.add(sul,BorderLayout.SOUTH);
+        mochilaConteudo.revalidate();mochilaConteudo.repaint();
+    }
+
+    private void abrirMochila(boolean emBatalha){
+        if(grupo==null||grupo.length==0)return;
+        mochilaEmBatalha=emBatalha;mochilaCategoria=emBatalha?"CONSUMÍVEIS":"TODOS";mochilaSelecionado=null;mochilaHeroi=emBatalha?heroiAtual():grupo[0];
+        mochilaDialog=new JDialog(janela,emBatalha?"Item — Batalha":"Mochila / Inventário",true);mochilaDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);mochilaDialog.setSize(1180,760);mochilaDialog.setMinimumSize(new Dimension(1050,690));mochilaDialog.setLocationRelativeTo(janela);
+        mochilaConteudo=base();mochilaConteudo.setBorder(new EmptyBorder(14,14,14,14));mochilaDialog.setContentPane(mochilaConteudo);atualizarMochila();mochilaDialog.setVisible(true);
+    }
+
     private void mostrarTransicao(){JPanel p=base();p.add(titulo("TRANSIÇÃO — CAMINHO PARA ELDORIA"),BorderLayout.NORTH);JLabel bg=new JLabel(imagem("forest_bg.png",900,430));p.add(bg);JTextArea t=new JTextArea("Com Fenrok derrotado, a floresta finalmente silencia.\n\nAo longe surgem as muralhas iluminadas de Eldoria. É hora de descansar, negociar e buscar informações sobre a energia estranha.");t.setEditable(false);t.setForeground(TEXTO);t.setBackground(PAINEL);t.setFont(new Font("Serif",Font.PLAIN,21));t.setBorder(new EmptyBorder(16,20,16,20));JButton seguir=botao("ENTRAR EM ELDORIA");seguir.addActionListener(e->mostrarEldoria());JPanel sul=new JPanel(new BorderLayout());sul.setOpaque(false);sul.add(t);sul.add(seguir,BorderLayout.EAST);p.add(sul,BorderLayout.SOUTH);raiz.add(p,"TRANSICAO");telas.show(raiz,"TRANSICAO");}
     private void mostrarEldoria(){JPanel p=base();p.add(titulo("ELDORIA — CIDADE DOS VIAJANTES"),BorderLayout.NORTH);JPanel centro=new JPanel(new GridLayout(2,2,18,18));centro.setOpaque(false);String[][] locais={{"POUSADA","Descansar e salvar o progresso."},{"LOJA","Comprar, vender e equipar itens."},{"TAVERNA","Conversar com viajantes e procurar pistas."},{"GRUPO / INVENTÁRIO","Consultar os heróis e seus equipamentos."}};for(String[] l:locais){JButton b=botao("<html><center><font size='6'>"+l[0]+"</font><br><font size='4'>"+l[1]+"</font></center></html>");if(l[0].equals("POUSADA"))b.addActionListener(e->pousadaGUI());else if(l[0].equals("LOJA"))b.addActionListener(e->lojaGUI());else if(l[0].equals("TAVERNA"))b.addActionListener(e->tavernaGUI());else b.addActionListener(e->painelGrupoInventario());centro.add(b);}p.add(centro);JLabel rodape=new JLabel("  Ouro do líder: $"+grupo[0].getDinheiro()+"   •   Próximo destino: Caverna dos Slimes",SwingConstants.CENTER);rodape.setForeground(OURO);rodape.setFont(NORMAL);p.add(rodape,BorderLayout.SOUTH);raiz.add(p,"ELDORIA");telas.show(raiz,"ELDORIA");}
-    private void pousadaGUI(){Object[] op={"Descansar","Salvar jogo","Voltar"};int r=JOptionPane.showOptionDialog(janela,"A lareira está acesa e os quartos estão prontos.\nO que deseja fazer?","Pousada de Eldoria",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,op,op[0]);if(r==0){for(Personagem h:grupo)if(h.vivo())h.recuperarTudo();JOptionPane.showMessageDialog(janela,"O grupo descansou. HP e Mana foram restaurados.");}else if(r==1){boolean ok=SaveService.salvar(grupo,grupo[0].getNome(),"ELDORIA",5,grupo.length>=3);JOptionPane.showMessageDialog(janela,ok?"Jogo salvo com sucesso!":"Não foi possível salvar o jogo.");}}
+    private void pousadaGUI(){
+        JPanel tela=painelFundo("pousada_bg.jpg");
+        JPanel menu=painelFlutuante();menu.setPreferredSize(new Dimension(390,330));
+        JLabel cab=new JLabel("<html><center><font size='6' color='#e2a63a'>POUSADA</font><br><font color='#d7e8f7'>Descanse antes da próxima jornada.</font></center></html>",SwingConstants.CENTER);cab.setFont(NORMAL);menu.add(cab,BorderLayout.NORTH);
+        JLabel estado=new JLabel("<html><center>Recupera completamente HP e Mana.<br>O progresso também pode ser salvo aqui.</center></html>",SwingConstants.CENTER);estado.setForeground(TEXTO);estado.setFont(NORMAL);menu.add(estado,BorderLayout.CENTER);
+        JPanel botoes=new JPanel(new GridLayout(0,1,8,8));botoes.setOpaque(false);
+        JButton descansar=botao("DESCANSAR — RECUPERAR HP/MP"), salvar=botao("SALVAR JOGO"), voltar=botao("VOLTAR PARA ELDORIA");
+        descansar.addActionListener(e->{for(Personagem h:grupo)if(h.vivo())h.recuperarTudo();JOptionPane.showMessageDialog(janela,"O grupo descansou. HP e Mana foram restaurados.","Descanso concluído",JOptionPane.INFORMATION_MESSAGE);});
+        salvar.addActionListener(e->{boolean ok=SaveService.salvar(grupo,grupo[0].getNome(),"ELDORIA",5,grupo.length>=3);JOptionPane.showMessageDialog(janela,ok?"Jogo salvo com sucesso!":"Não foi possível salvar o jogo.","Salvar",ok?JOptionPane.INFORMATION_MESSAGE:JOptionPane.ERROR_MESSAGE);});
+        voltar.addActionListener(e->mostrarEldoria());
+        botoes.add(descansar);botoes.add(salvar);botoes.add(voltar);menu.add(botoes,BorderLayout.SOUTH);
+        GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.gridy=0;g.weightx=1;g.weighty=1;g.anchor=GridBagConstraints.SOUTHEAST;g.insets=new Insets(0,0,58,70);tela.add(menu,g);
+        mostrarCard("POUSADA",tela);
+    }
     private Personagem escolherHeroiGUI(String titulo){String[] nomes=new String[grupo.length];for(int i=0;i<grupo.length;i++)nomes[i]=grupo[i].getNome();String s=(String)JOptionPane.showInputDialog(janela,"Escolha o personagem:",titulo,JOptionPane.PLAIN_MESSAGE,null,nomes,nomes[0]);if(s==null)return null;for(Personagem h:grupo)if(h.getNome().equals(s))return h;return null;}
-    private void lojaGUI(){String[] op={"Comprar","Vender item","Equipar","Voltar"};int r=JOptionPane.showOptionDialog(janela,"Bem-vindo à Loja da Lua Azul.","Loja de Eldoria",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,op,op[0]);if(r==0)comprarGUI();else if(r==1)venderGUI();else if(r==2)equiparGUI();}
+    private void lojaGUI(){
+        JPanel tela=painelFundo("loja_bg.jpg");
+        JPanel menu=painelFlutuante();menu.setPreferredSize(new Dimension(410,390));
+        JLabel cab=new JLabel("<html><center><font size='6' color='#e2a63a'>LOJA DA LUA AZUL</font><br><font color='#d7e8f7'>Comprar, vender e equipar itens.</font></center></html>",SwingConstants.CENTER);cab.setFont(NORMAL);menu.add(cab,BorderLayout.NORTH);
+        JLabel ouro=new JLabel("OURO DO LÍDER: $"+grupo[0].getDinheiro(),SwingConstants.CENTER);ouro.setForeground(OURO);ouro.setFont(new Font("Serif",Font.BOLD,20));menu.add(ouro,BorderLayout.CENTER);
+        JPanel botoes=new JPanel(new GridLayout(0,1,8,8));botoes.setOpaque(false);
+        JButton comprar=botao("COMPRAR ITENS"), vender=botao("VENDER ITENS"), equipar=botao("EQUIPAR"), mochila=botao("ABRIR MOCHILA"), voltar=botao("VOLTAR PARA ELDORIA");
+        comprar.addActionListener(e->{comprarGUI();lojaGUI();});vender.addActionListener(e->{venderGUI();lojaGUI();});equipar.addActionListener(e->{equiparGUI();lojaGUI();});mochila.addActionListener(e->abrirMochila(false));voltar.addActionListener(e->mostrarEldoria());
+        botoes.add(comprar);botoes.add(vender);botoes.add(equipar);botoes.add(mochila);botoes.add(voltar);menu.add(botoes,BorderLayout.SOUTH);
+        GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.gridy=0;g.weightx=1;g.weighty=1;g.anchor=GridBagConstraints.SOUTHEAST;g.insets=new Insets(0,0,52,65);tela.add(menu,g);
+        mostrarCard("LOJA",tela);
+    }
     private void comprarGUI(){Personagem h=escolherHeroiGUI("Comprar para quem?");if(h==null)return;String[] nomes={"Espada de Ferro — $35","Armadura de Couro — $30","Cajado Simples — $35","Poção de Vida — $15","Poção de Mana — $18"};String s=(String)JOptionPane.showInputDialog(janela,"Dinheiro de "+h.getNome()+": $"+h.getDinheiro(),"Comprar",JOptionPane.PLAIN_MESSAGE,null,nomes,nomes[0]);if(s==null)return;int i=Arrays.asList(nomes).indexOf(s);int[] precos={35,30,35,15,18};if(!h.gastarDinheiro(precos[i])){JOptionPane.showMessageDialog(janela,"Dinheiro insuficiente.");return;}if(i==0)h.getInventario().adicionarEquipamento(new Equipamento("Espada de Ferro","Arma",35,2,0,0,0,0,0));else if(i==1)h.getInventario().adicionarEquipamento(new Equipamento("Armadura de Couro","Armadura",30,0,2,0,1,0,0));else if(i==2)h.getInventario().adicionarEquipamento(new Equipamento("Cajado Simples","Arma",35,0,0,2,0,0,0));else if(i==3)h.getInventario().adicionarItem(new Item("Pocao de Vida","Pocao",15,30,0));else h.getInventario().adicionarItem(new Item("Pocao de Mana","Pocao",18,0,20));JOptionPane.showMessageDialog(janela,"Compra realizada: "+s.split(" —")[0]+".");}
     private void venderGUI(){Personagem h=escolherHeroiGUI("Vender item de quem?");if(h==null||h.getInventario().getItens().isEmpty()){JOptionPane.showMessageDialog(janela,"Nenhum item disponível para venda.");return;}java.util.List<Item> its=h.getInventario().getItens();String[] n=new String[its.size()];for(int i=0;i<n.length;i++)n[i]=its.get(i).descricao();String s=(String)JOptionPane.showInputDialog(janela,"Escolha o item:","Vender",JOptionPane.PLAIN_MESSAGE,null,n,n[0]);if(s==null)return;Item it=its.get(Arrays.asList(n).indexOf(s));int valor=Math.max(1,it.getPreco()/2);h.adicionarDinheiro(valor);h.getInventario().removerUmaUnidade(it);JOptionPane.showMessageDialog(janela,it.getNome()+" vendido por $"+valor+".");}
     private void equiparGUI(){Personagem h=escolherHeroiGUI("Equipar em quem?");if(h==null||h.getInventario().getEquipamentos().isEmpty()){JOptionPane.showMessageDialog(janela,"Nenhum equipamento disponível.");return;}java.util.List<Equipamento> es=h.getInventario().getEquipamentos();String[] n=new String[es.size()];for(int i=0;i<n.length;i++)n[i]=es.get(i).descricao();String s=(String)JOptionPane.showInputDialog(janela,"Escolha o equipamento:","Equipar",JOptionPane.PLAIN_MESSAGE,null,n,n[0]);if(s==null)return;Equipamento e=es.get(Arrays.asList(n).indexOf(s));h.equipar(e);JOptionPane.showMessageDialog(janela,e.getNome()+" equipado em "+h.getNome()+".");}
-    private void tavernaGUI(){if(grupo.length<3){JTextArea txt=new JTextArea("Kael e Lyra entram na taverna. Entre mercadores e aventureiros, uma elfa observa a movimentação.\n\n— Meu nome é Elyra. Também estou investigando a energia estranha que surgiu na região.\n\nDepois de conversarem, Elyra decide acompanhar os irmãos.\n\nELYRA ENTROU NO GRUPO! — Nv. 2 • Arqueira Arcana");txt.setEditable(false);txt.setLineWrap(true);txt.setWrapStyleWord(true);txt.setFont(NORMAL);txt.setBackground(PAINEL);txt.setForeground(TEXTO);txt.setBorder(new EmptyBorder(20,20,20,20));JOptionPane.showMessageDialog(janela,new JScrollPane(txt),"Taverna — Um novo encontro",JOptionPane.PLAIN_MESSAGE);grupo=new Personagem[]{grupo[0],grupo[1],new Elyra()};}else JOptionPane.showMessageDialog(janela,"Elyra já está no grupo. O taverneiro comenta que ruídos estranhos vêm da Caverna dos Slimes.");int r=JOptionPane.showConfirmDialog(janela,"Seguir para a Caverna dos Slimes?","Próximo destino",JOptionPane.YES_NO_OPTION);if(r==JOptionPane.YES_OPTION)entradaCavernaGUI();}
-    private void painelGrupoInventario(){StringBuilder s=new StringBuilder();for(Personagem h:grupo){s.append(h.getNome()).append(" — Nv. ").append(h.getNivel()).append(" | HP ").append(h.getVida()).append('/').append(h.getVidaMaxima()).append(" | Mana ").append(h.getMana()).append('/').append(h.getManaMaxima()).append(" | $").append(h.getDinheiro()).append(" | Pontos: ").append(h.getPontosAtributo()).append("\n");s.append("  Arma: ").append(h.getArmaEquipada()==null?"nenhuma":h.getArmaEquipada().getNome()).append(" | Armadura: ").append(h.getArmaduraEquipada()==null?"nenhuma":h.getArmaduraEquipada().getNome()).append("\n\n");}JTextArea a=new JTextArea(s.toString());a.setEditable(false);a.setFont(new Font("Monospaced",Font.PLAIN,14));Object[] op={"Distribuir atributos","Fechar"};int r=JOptionPane.showOptionDialog(janela,new JScrollPane(a),"Grupo e Equipamentos",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,op,op[1]);if(r==0)distribuirPontosGUI();}
+    private void tavernaGUI(){
+        JPanel tela=painelFundo("taverna_bg.jpg");
+        JPanel menu=painelFlutuante();menu.setPreferredSize(new Dimension(470,390));
+        JLabel cab=new JLabel("<html><center><font size='6' color='#e2a63a'>TAVERNA</font><br><font color='#d7e8f7'>Rumores, viajantes e novas pistas.</font></center></html>",SwingConstants.CENTER);cab.setFont(NORMAL);menu.add(cab,BorderLayout.NORTH);
+        JTextArea texto=new JTextArea();texto.setEditable(false);texto.setLineWrap(true);texto.setWrapStyleWord(true);texto.setOpaque(false);texto.setForeground(TEXTO);texto.setFont(NORMAL);
+        if(grupo.length<3)texto.setText("Entre mercadores e aventureiros, uma elfa observa a movimentação. Ela parece interessada na mesma energia estranha investigada por Kael e Lyra.");
+        else texto.setText("Elyra já faz parte do grupo. O taverneiro comenta que ruídos viscosos e uma luz azul vêm da Caverna dos Slimes.");
+        menu.add(texto,BorderLayout.CENTER);
+        JPanel botoes=new JPanel(new GridLayout(0,1,8,8));botoes.setOpaque(false);
+        JButton conversar=botao(grupo.length<3?"CONVERSAR COM A VIAJANTE":"CONVERSAR / OUVIR RUMORES"), caverna=botao("SEGUIR PARA A CAVERNA DOS SLIMES"), voltar=botao("VOLTAR PARA ELDORIA");
+        conversar.addActionListener(e->{
+            if(grupo.length<3){
+                JOptionPane.showMessageDialog(janela,"— Meu nome é Elyra. Também estou investigando a energia estranha que surgiu na região.\n\nDepois da conversa, Elyra decide acompanhar os irmãos.\n\nELYRA ENTROU NO GRUPO! — Nv. 2 • Arqueira Arcana","Um novo encontro",JOptionPane.INFORMATION_MESSAGE);
+                grupo=new Personagem[]{grupo[0],grupo[1],new Elyra()};
+            }else JOptionPane.showMessageDialog(janela,"O taverneiro reforça o aviso: a Caverna dos Slimes está cada vez mais instável.","Rumores",JOptionPane.INFORMATION_MESSAGE);
+            tavernaGUI();
+        });
+        caverna.addActionListener(e->entradaCavernaGUI());voltar.addActionListener(e->mostrarEldoria());
+        botoes.add(conversar);botoes.add(caverna);botoes.add(voltar);menu.add(botoes,BorderLayout.SOUTH);
+        GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.gridy=0;g.weightx=1;g.weighty=1;g.anchor=GridBagConstraints.SOUTHEAST;g.insets=new Insets(0,0,48,60);tela.add(menu,g);
+        mostrarCard("TAVERNA",tela);
+    }
+    private void painelGrupoInventario(){
+        JPanel tela=painelFundo("grupo_inventario_bg.jpg");
+        JPanel menu=painelFlutuante();menu.setPreferredSize(new Dimension(470,520));
+        JLabel cab=new JLabel("<html><center><font size='6' color='#e2a63a'>GRUPO / INVENTÁRIO</font><br><font color='#d7e8f7'>Heróis, equipamentos e mochila.</font></center></html>",SwingConstants.CENTER);cab.setFont(NORMAL);menu.add(cab,BorderLayout.NORTH);
+        JPanel herois=new JPanel();herois.setOpaque(false);herois.setLayout(new BoxLayout(herois,BoxLayout.Y_AXIS));
+        for(Personagem h:grupo){
+            JPanel linha=new JPanel(new BorderLayout(8,4));linha.setOpaque(false);linha.setBorder(new EmptyBorder(6,4,6,4));
+            JLabel foto=new JLabel(imagem(imagemHeroi(h),62,62));linha.add(foto,BorderLayout.WEST);
+            JLabel info=new JLabel("<html><b><font color='#e2a63a'>"+h.getNome()+"</font></b> — Nv. "+h.getNivel()+"<br>HP "+h.getVida()+"/"+h.getVidaMaxima()+" • Mana "+h.getMana()+"/"+h.getManaMaxima()+"<br>Pontos de atributo: "+h.getPontosAtributo()+"</html>");info.setForeground(TEXTO);linha.add(info,BorderLayout.CENTER);herois.add(linha);
+        }
+        menu.add(herois,BorderLayout.CENTER);
+        JPanel botoes=new JPanel(new GridLayout(0,1,8,8));botoes.setOpaque(false);
+        JButton mochila=botao("ABRIR MOCHILA / EQUIPAMENTOS"), atributos=botao("DISTRIBUIR ATRIBUTOS"), voltar=botao("VOLTAR PARA ELDORIA");
+        mochila.addActionListener(e->abrirMochila(false));atributos.addActionListener(e->{distribuirPontosGUI();painelGrupoInventario();});voltar.addActionListener(e->mostrarEldoria());
+        botoes.add(mochila);botoes.add(atributos);botoes.add(voltar);menu.add(botoes,BorderLayout.SOUTH);
+        GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.gridy=0;g.weightx=1;g.weighty=1;g.anchor=GridBagConstraints.SOUTHEAST;g.insets=new Insets(0,0,45,55);tela.add(menu,g);
+        mostrarCard("GRUPO_INVENTARIO",tela);
+    }
     private void distribuirPontosGUI(){Personagem h=escolherHeroiGUI("Distribuir atributos");if(h==null)return;if(h.getPontosAtributo()<=0){JOptionPane.showMessageDialog(janela,"Esse personagem não possui pontos disponíveis.");return;}String[] attrs={"Força","Defesa","Inteligência","Resistência","Velocidade","Sorte"};while(h.getPontosAtributo()>0){String a=(String)JOptionPane.showInputDialog(janela,"Pontos restantes: "+h.getPontosAtributo(),"Atributos de "+h.getNome(),JOptionPane.PLAIN_MESSAGE,null,attrs,attrs[0]);if(a==null)break;h.distribuirPonto(Arrays.asList(attrs).indexOf(a)+1);} }
     private void entradaCavernaGUI(){JPanel p=base();p.add(titulo("CAVERNA 1 — REINO DOS SLIMES"),BorderLayout.NORTH);JLabel bg=new JLabel(imagem("slime_cave_bg.png",900,420),SwingConstants.CENTER);bg.setBorder(BorderFactory.createLineBorder(AZUL,2));p.add(bg);JTextArea t=new JTextArea("> O grupo chega à Caverna dos Slimes.\nCristais azuis iluminam as paredes e sons viscosos ecoam pelos túneis.\n\nObjetivo: atravesse 3 ondas de Slimes e derrote o Rei Slime.");t.setEditable(false);t.setLineWrap(true);t.setWrapStyleWord(true);t.setFont(NORMAL);t.setForeground(TEXTO);t.setBackground(PAINEL);t.setBorder(new EmptyBorder(12,16,12,16));JButton entrar=botao("ENTRAR NA CAVERNA"),voltar=botao("VOLTAR PARA ELDORIA");entrar.addActionListener(e->{batalhaCaverna=true;caveWave=0;proximaOndaCaverna();});voltar.addActionListener(e->telas.show(raiz,"ELDORIA"));JPanel bs=new JPanel(new FlowLayout());bs.setOpaque(false);bs.add(entrar);bs.add(voltar);JPanel sul=new JPanel(new BorderLayout());sul.setOpaque(false);sul.add(t);sul.add(bs,BorderLayout.SOUTH);p.add(sul,BorderLayout.SOUTH);raiz.add(p,"CAVERNA1");telas.show(raiz,"CAVERNA1");}
     private void proximaOndaCaverna(){caveWave++; if(caveWave==1) inimigos=new Inimigo[]{new Inimigo("Slime",32,7,2,2,8),new Inimigo("Slime",32,7,2,2,8),new Inimigo("Slime",32,7,2,2,8)}; else if(caveWave==2) inimigos=new Inimigo[]{new Inimigo("Slime",42,9,3,2,10),new Inimigo("Slime",42,9,3,2,10),new Inimigo("Slime",42,9,3,2,10),new Inimigo("Slime",42,9,3,2,10)}; else if(caveWave==3) inimigos=new Inimigo[]{new Inimigo("Slime",55,11,4,3,14),new Inimigo("Slime",55,11,4,3,14),new Inimigo("Slime",55,11,4,3,14),new Inimigo("Slime",55,11,4,3,14),new Inimigo("Slime",55,11,4,3,14)}; else if(caveWave==4) inimigos=new Inimigo[]{new Inimigo("Rei Slime",260,18,7,3,90)}; else {mostrarFinalDemo();return;} turnoHeroi=0; JPanel b=criarBatalha();raiz.add(b,"BATALHA_CAVERNA");telas.show(raiz,"BATALHA_CAVERNA");}
     private void mostrarFinalDemo(){batalhaCaverna=false;JPanel p=base();p.add(titulo("CAPÍTULO CONCLUÍDO"),BorderLayout.NORTH);JLabel bg=new JLabel(imagem("slime_cave_bg.png",900,430),SwingConstants.CENTER);p.add(bg);JTextArea t=new JTextArea("O Rei Slime se desfaz em luz azul e a caverna fica em silêncio.\n\nEntre os cristais, Elyra encontra um fragmento marcado com o símbolo Delta. A energia é semelhante àquela sentida na floresta — prova de que Fenrok não era um caso isolado.\n\nKael, Lyra e Elyra retornam a Eldoria com uma nova pista.\n\nFIM DA VERSÃO JOGÁVEL — a aventura continua...");t.setEditable(false);t.setLineWrap(true);t.setWrapStyleWord(true);t.setFont(new Font("Serif",Font.PLAIN,21));t.setForeground(TEXTO);t.setBackground(PAINEL);t.setBorder(new EmptyBorder(16,22,16,22));JButton cidade=botao("VOLTAR PARA ELDORIA"),menu=botao("MENU PRINCIPAL");cidade.addActionListener(e->mostrarEldoria());menu.addActionListener(e->telas.show(raiz,"MENU"));JPanel bs=new JPanel(new FlowLayout());bs.setOpaque(false);bs.add(cidade);bs.add(menu);JPanel sul=new JPanel(new BorderLayout());sul.setOpaque(false);sul.add(t);sul.add(bs,BorderLayout.SOUTH);p.add(sul,BorderLayout.SOUTH);raiz.add(p,"FINAL");telas.show(raiz,"FINAL");}
     private void mostrarGrupo(){StringBuilder s=new StringBuilder();for(Personagem h:grupo)s.append(h.getNome()).append(" — Nv. ").append(h.getNivel()).append(" | HP ").append(h.getVida()).append('/').append(h.getVidaMaxima()).append(" | Mana ").append(h.getMana()).append('/').append(h.getManaMaxima()).append('\n');JOptionPane.showMessageDialog(janela,s.toString(),"Grupo",JOptionPane.INFORMATION_MESSAGE);}
-    private void mostrarInventario(){if(grupo==null)return;StringBuilder s=new StringBuilder("Inventário compartilhado do líder:\n\n");if(grupo[0].getInventario().getItens().isEmpty())s.append("Nenhum item ainda.");else for(Item i:grupo[0].getInventario().getItens())s.append("• ").append(i.descricao()).append('\n');JOptionPane.showMessageDialog(janela,s.toString(),"Inventário",JOptionPane.INFORMATION_MESSAGE);}
+    private void mostrarInventario(){abrirMochila(false);}
 }

@@ -1,0 +1,19 @@
+DELTA TRIGGER — GUI CENÁRIOS V4
+
+Esta versão parte da GUI Inventário V3 e integra as novas artes fornecidas pelo grupo.
+
+NOVAS ARTES USADAS NO CÓDIGO
+- assets/grupo_inventario_bg.jpg -> tela Grupo / Inventário
+- assets/pousada_bg.jpg -> Pousada de Eldoria
+- assets/loja_bg.jpg -> Loja de Eldoria
+- assets/taverna_bg.jpg -> Taverna de Eldoria
+
+MUDANÇAS DE INTERFACE
+- Pousada deixou de ser apenas JOptionPane e ganhou tela própria com cenário, Descansar, Salvar e Voltar.
+- Loja ganhou tela própria com cenário, ouro atual, Comprar, Vender, Equipar, Abrir Mochila e Voltar.
+- Taverna ganhou tela própria com cenário, diálogo/evento da Elyra, acesso à Caverna dos Slimes e Voltar.
+- Grupo/Inventário ganhou uma tela de apresentação do grupo com retratos, HP/Mana, nível e pontos de atributo, além de acesso à mochila/equipamentos.
+- As ações continuam usando a lógica/modelos existentes do projeto; as imagens são a camada visual.
+
+EXECUÇÃO
+Abra src/MainGUI.java e execute o main.

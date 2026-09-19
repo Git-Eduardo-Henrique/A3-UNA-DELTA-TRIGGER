@@ -1,0 +1,24 @@
+DELTA TRIGGER — GUI INVENTÁRIO V3
+
+Mudanças desta revisão:
+- Usa as novas artes enviadas pelo usuário para Kael e Lyra.
+  * kael_full_v2.png / lyra_full_v2.png: seleção de personagem.
+  * kael_portrait_v2.png / lyra_portrait_v2.png: batalha, mochila e HUD.
+- Nova interface gráfica de mochila/inventário.
+- Grade de 20 slots com categorias Todos / Consumíveis / Equipamentos.
+- Ícones visuais para poções, armas, armaduras, cajados, arcos, botas, chifres e itens genéricos.
+- Painel lateral com personagem, HP, MP e ouro.
+- Painel de equipamentos com Arma / Armadura / Botas.
+- Detalhes do item/equipamento selecionado e bônus de atributos.
+- Equipar diretamente pela mochila.
+- Usar consumíveis diretamente pela mochila.
+- Durante batalha, o botão ITEM abre a mochila do personagem que está no turno e consome o turno somente quando um item é realmente utilizado.
+- Itens que não teriam efeito não são consumidos.
+- A tela Grupo / Inventário de Eldoria também abre a nova mochila.
+- Mantida a lógica do V3.1 como base.
+
+OBSERVAÇÃO:
+A arte própria da Elyra ainda não foi fornecida. O jogo continua usando arte provisória para ela até a imagem oficial ser adicionada.
+
+EXECUTAR:
+src/MainGUI.java

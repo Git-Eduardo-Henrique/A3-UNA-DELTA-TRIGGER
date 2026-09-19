@@ -58,3 +58,6 @@ ETAPA 5
 - Habilidades GUI para Kael, Lyra e Elyra.
 - Distribuição de pontos de atributo após Fenrok.
 - Continuação jogável nova após o limite do V3.1: Caverna dos Slimes com 3 ondas, Rei Slime e encerramento da versão jogável.
+
+## GUI Cenários V4
+As artes de Grupo/Inventário, Pousada, Loja e Taverna foram integradas como telas funcionais, mantendo a lógica existente do V3.1/GUI anterior.
