@@ -1051,11 +1051,50 @@ public class DeltaTriggerGUI {
     }
 
     private void mostrarMapaProgresso(){
-        JDialog d=new JDialog(janela,"Mapa da Jornada",true);d.setSize(820,500);d.setLocationRelativeTo(janela);JPanel p=base();p.add(titulo("MAPA DA JORNADA"),BorderLayout.NORTH);
-        JPanel trilha=new JPanel(new GridLayout(1,5,10,0));trilha.setOpaque(false);String[] nomes={"1. Floresta","2. Fenrok","3. Eldoria","4. Caverna","5. Rei Slime"};
-        int atual=batalhaCaverna?(caveWave>=4?5:4):(wave>=5?3:Math.max(1,wave));
-        for(int i=0;i<nomes.length;i++){JPanel n=moldura();JLabel l=new JLabel("<html><center><font size='5'>"+nomes[i]+"</font><br><br>"+(i+1<atual?"CONCLUÍDO":i+1==atual?"ATUAL":"BLOQUEADO")+"</center></html>",SwingConstants.CENTER);l.setForeground(i+1<atual?VERDE:i+1==atual?OURO:new Color(105,120,140));n.add(l);trilha.add(n);}p.add(trilha);
-        JLabel obj=new JLabel("Objetivo atual: "+(grupo!=null&&grupo.length>=3?"Investigar a Caverna dos Slimes":"Reunir informações em Eldoria"),SwingConstants.CENTER);obj.setForeground(AZULC);obj.setFont(NORMAL);p.add(obj,BorderLayout.SOUTH);d.setContentPane(p);d.setVisible(true);
+        final JDialog d=new JDialog(janela,true);
+        d.setUndecorated(true);
+        Dimension sc=Toolkit.getDefaultToolkit().getScreenSize();
+        int dw=Math.min(1480,sc.width-90), dh=Math.min(900,sc.height-100);
+        d.setSize(dw,dh);
+        d.setLocationRelativeTo(janela);
+
+        File mf=asset("mapa_jornada_v2.png");
+        final Image mapa=mf.exists()?new ImageIcon(mf.getPath()).getImage():null;
+        final int atual=batalhaCaverna?(caveWave>=4?5:4):(wave>=5?3:Math.max(1,wave));
+
+        JPanel root=new JPanel(null){
+            @Override protected void paintComponent(Graphics g){
+                super.paintComponent(g);
+                Graphics2D g2=(Graphics2D)g.create();
+                g2.setColor(FUNDO);g2.fillRect(0,0,getWidth(),getHeight());
+                if(mapa!=null){
+                    int iw=mapa.getWidth(this), ih=mapa.getHeight(this);
+                    double escala=Math.min((double)(getWidth()-20)/iw,(double)(getHeight()-20)/ih);
+                    int w=(int)Math.round(iw*escala), h=(int)Math.round(ih*escala);
+                    int x=(getWidth()-w)/2, y=(getHeight()-h)/2;
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    g2.drawImage(mapa,x,y,w,h,this);
+
+                    double[][] pontos={{.150,.625},{.174,.458},{.438,.542},{.522,.253},{.260,.243}};
+                    int idx=Math.max(1,Math.min(5,atual))-1;
+                    int px=x+(int)Math.round(w*pontos[idx][0]);
+                    int py=y+(int)Math.round(h*pontos[idx][1]);
+                    g2.setStroke(new BasicStroke(4f));
+                    g2.setColor(new Color(0,0,0,150));g2.fillOval(px-14,py-14,28,28);
+                    g2.setColor(Color.WHITE);g2.fillOval(px-9,py-9,18,18);
+                    g2.setColor(new Color(115,190,255));g2.drawOval(px-15,py-15,30,30);
+                }
+                g2.setColor(OURO);g2.setStroke(new BasicStroke(2f));g2.drawRect(1,1,getWidth()-3,getHeight()-3);
+                g2.dispose();
+            }
+        };
+        root.setBackground(FUNDO);
+        JButton fechar=botao("VOLTAR PARA ELDORIA");
+        fechar.setBounds(dw-330,dh-78,285,46);
+        fechar.addActionListener(e->d.dispose());
+        root.add(fechar);
+        d.setContentPane(root);
+        d.setVisible(true);
     }
 
     private void pousadaGUI(){
@@ -1072,7 +1111,42 @@ public class DeltaTriggerGUI {
         GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.gridy=0;g.weightx=1;g.weighty=1;g.anchor=GridBagConstraints.SOUTHEAST;g.insets=new Insets(0,0,58,70);tela.add(menu,g);
         mostrarCard("POUSADA",tela);
     }
-    private Personagem escolherHeroiGUI(String titulo){String[] nomes=new String[grupo.length];for(int i=0;i<grupo.length;i++)nomes[i]=grupo[i].getNome();String s=(String)JOptionPane.showInputDialog(janela,"Escolha o personagem:",titulo,JOptionPane.PLAIN_MESSAGE,null,nomes,nomes[0]);if(s==null)return null;for(Personagem h:grupo)if(h.getNome().equals(s))return h;return null;}
+    private Personagem escolherHeroiGUI(String tituloEscolha){
+        if(grupo==null||grupo.length==0)return null;
+        final Personagem[] escolhido={null};
+        final JDialog d=new JDialog(janela,true);
+        d.setUndecorated(true);
+        d.setSize(620,Math.min(560,260+grupo.length*95));
+        d.setLocationRelativeTo(janela);
+
+        JPanel root=base();
+        root.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(OURO,2),new EmptyBorder(18,20,18,20)));
+        JLabel cab=titulo(tituloEscolha.toUpperCase(Locale.ROOT));
+        root.add(cab,BorderLayout.NORTH);
+
+        JPanel lista=new JPanel(new GridLayout(grupo.length,1,10,10));
+        lista.setOpaque(false);
+        for(Personagem h:grupo){
+            JButton linha=new JButton();
+            linha.setLayout(new BorderLayout(14,0));
+            linha.setBackground(new Color(4,19,38));
+            linha.setForeground(TEXTO);
+            linha.setFocusPainted(false);
+            linha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            linha.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(64,130,220),1),new EmptyBorder(8,12,8,12)));
+            JLabel foto=new JLabel(imagem(imagemHeroi(h),68,68));
+            JLabel info=new JLabel("<html><b><font color='#e2a63a' size='5'>"+h.getNome()+"</font></b> — Nv. "+h.getNivel()+"<br>HP "+h.getVida()+"/"+h.getVidaMaxima()+" • Mana "+h.getMana()+"/"+h.getManaMaxima()+"</html>");
+            info.setForeground(TEXTO);info.setFont(NORMAL);
+            linha.add(foto,BorderLayout.WEST);linha.add(info,BorderLayout.CENTER);
+            linha.addActionListener(e->{escolhido[0]=h;d.dispose();});
+            lista.add(linha);
+        }
+        root.add(lista,BorderLayout.CENTER);
+        JPanel sul=new JPanel(new FlowLayout(FlowLayout.RIGHT,0,0));sul.setOpaque(false);
+        JButton cancelar=botao("CANCELAR");cancelar.addActionListener(e->d.dispose());sul.add(cancelar);root.add(sul,BorderLayout.SOUTH);
+        d.setContentPane(root);d.setVisible(true);
+        return escolhido[0];
+    }
     private boolean podeUsarEquipamento(Personagem h,Equipamento e){
         if(h==null||e==null)return false;if(!"Arma".equalsIgnoreCase(e.getTipo()))return true;String n=e.getNome().toLowerCase(Locale.ROOT);
         if("Kael".equals(h.getNome()))return n.contains("espada");
@@ -1319,7 +1393,7 @@ public class DeltaTriggerGUI {
     }
     private void distribuirPontosGUI(){
         Personagem h=escolherHeroiGUI("Distribuir atributos");if(h==null)return;
-        final JDialog d=new JDialog(janela,"Atributos — "+h.getNome(),true);d.setSize(470,520);d.setLocationRelativeTo(janela);JPanel root=base();root.add(titulo("ATRIBUTOS DE "+h.getNome().toUpperCase()),BorderLayout.NORTH);
+        final JDialog d=new JDialog(janela,true);d.setUndecorated(true);d.setSize(470,520);d.setLocationRelativeTo(janela);JPanel root=base();root.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(OURO,2),new EmptyBorder(14,16,14,16)));root.add(titulo("ATRIBUTOS DE "+h.getNome().toUpperCase()),BorderLayout.NORTH);
         JPanel lista=new JPanel(new GridLayout(6,1,7,7));lista.setOpaque(false);String[] nomes={"Força","Defesa","Inteligência","Resistência","Velocidade","Sorte"};
         JLabel pontos=new JLabel("Pontos disponíveis: "+h.getPontosAtributo(),SwingConstants.CENTER);pontos.setForeground(OURO);pontos.setFont(new Font("Serif",Font.BOLD,20));
         Runnable rebuild=new Runnable(){public void run(){lista.removeAll();int[] vals={h.getForca(),h.getDefesa(),h.getInteligencia(),h.getResistencia(),h.getVelocidade(),h.getSorte()};for(int i=0;i<nomes.length;i++){final int op=i+1;JPanel lin=moldura();JLabel lab=new JLabel(nomes[i]+":  "+vals[i]);lab.setForeground(TEXTO);lab.setFont(new Font("Serif",Font.BOLD,18));JButton mais=botao("+");mais.setPreferredSize(new Dimension(55,36));mais.setEnabled(h.getPontosAtributo()>0);mais.addActionListener(e->{if(h.distribuirPonto(op)){pontos.setText("Pontos disponíveis: "+h.getPontosAtributo());run();}});lin.add(lab,BorderLayout.CENTER);lin.add(mais,BorderLayout.EAST);lista.add(lin);}lista.revalidate();lista.repaint();}};
