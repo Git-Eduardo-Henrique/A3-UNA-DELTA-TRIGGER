@@ -179,18 +179,27 @@ public class DeltaTriggerGUI {
         JPanel p=new JPanel(new GridBagLayout()){
             @Override protected void paintComponent(Graphics g){
                 super.paintComponent(g);
-                if(fundo==null)return;
-                int pw=getWidth(), ph=getHeight();
-                int iw=fundo.getWidth(this), ih=fundo.getHeight(this);
-                if(iw<=0||ih<=0)return;
-                double escala=Math.max((double)pw/iw,(double)ph/ih);
-                int w=(int)Math.round(iw*escala), h=(int)Math.round(ih*escala);
-                int x=(pw-w)/2, y=(ph-h)/2;
                 Graphics2D g2=(Graphics2D)g.create();
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                g2.drawImage(fundo,x,y,w,h,this);
-                g2.setPaint(new GradientPaint(0,ph/2,new Color(0,5,15,0),0,ph,new Color(0,5,15,105)));
+                int pw=getWidth(), ph=getHeight();
+                g2.setPaint(new GradientPaint(0,0,new Color(1,8,20),0,ph,new Color(4,22,46)));
                 g2.fillRect(0,0,pw,ph);
+                if(fundo!=null){
+                    int iw=fundo.getWidth(this), ih=fundo.getHeight(this);
+                    if(iw>0&&ih>0){
+                        double escala=Math.min((double)(pw-40)/iw,(double)(ph-40)/ih);
+                        if(escala<=0)escala=1.0;
+                        int w=(int)Math.round(iw*escala), h=(int)Math.round(ih*escala);
+                        int x=(pw-w)/2, y=(ph-h)/2;
+                        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                        g2.setColor(new Color(0,0,0,70));
+                        g2.fillRoundRect(x-8,y-8,w+16,h+16,18,18);
+                        g2.drawImage(fundo,x,y,w,h,this);
+                        g2.setColor(new Color(10,34,62,180));
+                        g2.drawRoundRect(x-1,y-1,w+1,h+1,12,12);
+                        g2.setPaint(new GradientPaint(0,y,new Color(0,8,18,35),0,y+h,new Color(0,8,18,130)));
+                        g2.fillRoundRect(x,y,w,h,12,12);
+                    }
+                }
                 g2.dispose();
             }
         };
@@ -246,22 +255,10 @@ public class DeltaTriggerGUI {
                 Graphics2D g2=(Graphics2D)g.create();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
                 int w=getWidth(), h=getHeight();
-                if(img!=null){
-                    int iw=img.getWidth(this), ih=img.getHeight(this);
-                    if(iw>0&&ih>0){
-                        double escala=Math.max((double)w/iw,(double)h/ih);
-                        int dw=(int)Math.round(iw*escala), dh=(int)Math.round(ih*escala);
-                        int x=(w-dw)/2, y=(h-dh)/2;
-                        g2.drawImage(img,x,y,dw,dh,this);
-                    }
-                }else{
-                    g2.setPaint(new GradientPaint(0,0,new Color(8,24,46),0,h,new Color(3,12,24)));
-                    g2.fillRect(0,0,w,h);
-                }
-                g2.setPaint(new GradientPaint(0,0,new Color(0,4,15,65),0,h,new Color(0,4,15,190)));
+                g2.setPaint(new GradientPaint(0,0,new Color(6,20,39),0,h,new Color(3,12,24)));
                 g2.fillRect(0,0,w,h);
                 if(getModel().isRollover()){
-                    g2.setColor(new Color(255,220,120,45));
+                    g2.setColor(new Color(255,220,120,28));
                     g2.fillRect(0,0,w,h);
                 }
                 g2.setColor(OURO);
@@ -271,13 +268,40 @@ public class DeltaTriggerGUI {
             }
         };
         b.setOpaque(false); b.setContentAreaFilled(false); b.setBorderPainted(false); b.setFocusPainted(false); b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        b.setLayout(new BorderLayout());
-        JPanel overlay=new JPanel(new BorderLayout()); overlay.setOpaque(false); overlay.setBorder(new EmptyBorder(12,14,14,14));
-        JLabel top=new JLabel(tituloLocal,SwingConstants.CENTER); top.setForeground(Color.WHITE); top.setFont(new Font("Serif",Font.BOLD,18));
-        JLabel mid=new JLabel("<html><div style='text-align:center;color:#f7f1e2;'>"+descricao+"</div></html>",SwingConstants.CENTER); mid.setForeground(new Color(244,240,228)); mid.setFont(new Font("Serif",Font.PLAIN,13));
-        JLabel enter=new JLabel("ENTRAR",SwingConstants.CENTER); enter.setForeground(OURO); enter.setFont(new Font("Serif",Font.BOLD,13));
-        overlay.add(top,BorderLayout.NORTH); overlay.add(mid,BorderLayout.CENTER); overlay.add(enter,BorderLayout.SOUTH);
-        b.add(overlay);
+        b.setLayout(new BorderLayout(0,8));
+        b.setBorder(new EmptyBorder(10,10,10,10));
+
+        JLabel preview=new JLabel();
+        preview.setHorizontalAlignment(SwingConstants.CENTER);
+        preview.setOpaque(true);
+        preview.setBackground(new Color(2,10,24));
+        preview.setBorder(BorderFactory.createLineBorder(new Color(90,135,215),1));
+        if(img!=null){
+            int iw=img.getWidth(null), ih=img.getHeight(null);
+            if(iw>0&&ih>0){
+                int alvoW=460, alvoH=210;
+                double escala=Math.min((double)alvoW/iw,(double)alvoH/ih);
+                if(escala<=0)escala=1.0;
+                int dw=(int)Math.round(iw*escala), dh=(int)Math.round(ih*escala);
+                preview.setIcon(new ImageIcon(img.getScaledInstance(dw,dh,Image.SCALE_SMOOTH)));
+            }
+        }else{
+            preview.setText("<html><center><font color='#e2a63a' size='5'>"+tituloLocal+"</font><br><font color='#d7e8f7'>"+descricao+"</font></center></html>");
+        }
+        b.add(preview,BorderLayout.CENTER);
+
+        JPanel rodape=new JPanel(new BorderLayout(8,0));
+        rodape.setOpaque(false);
+        JLabel desc=new JLabel("<html><div style='text-align:center;color:#d7e8f7;'>"+descricao+"</div></html>",SwingConstants.CENTER);
+        desc.setFont(new Font("Serif",Font.PLAIN,13));
+        desc.setForeground(TEXTO);
+        JLabel enter=new JLabel("ENTRAR",SwingConstants.CENTER);
+        enter.setForeground(OURO);
+        enter.setFont(new Font("Serif",Font.BOLD,16));
+        rodape.add(desc,BorderLayout.CENTER);
+        rodape.add(enter,BorderLayout.SOUTH);
+        b.add(rodape,BorderLayout.SOUTH);
+        b.setToolTipText(tituloLocal+" — "+descricao);
         return b;
     }
     private JLabel labelLocal(String html){
@@ -993,8 +1017,10 @@ public class DeltaTriggerGUI {
     private void mostrarEldoria(){
         JPanel p=base();
         p.add(titulo("ELDORIA — CIDADE DOS VIAJANTES"),BorderLayout.NORTH);
-        JPanel centro=new JPanel(new GridLayout(2,3,18,18));
+
+        JPanel centro=new JPanel(new GridLayout(2,3,16,16));
         centro.setOpaque(false);
+        centro.setBorder(new EmptyBorder(10,6,10,6));
 
         JButton pousada=cardLocalImagem("POUSADA","Descansar e salvar o progresso.","pousada_bg.jpg");
         pousada.addActionListener(e->pousadaGUI());
@@ -1009,8 +1035,12 @@ public class DeltaTriggerGUI {
         JButton caverna=cardLocalImagem("CAVERNA DOS SLIMES","Seguir para a próxima missão.","slime_cave_bg.png");
         caverna.addActionListener(e->entradaCavernaGUI());
 
-        centro.add(pousada); centro.add(loja); centro.add(taverna); centro.add(grupoInv); centro.add(mapa); centro.add(caverna);
-        p.add(centro,BorderLayout.CENTER);
+        for(JButton b:new JButton[]{pousada,loja,taverna,grupoInv,mapa,caverna})centro.add(b);
+
+        JPanel wrapper=new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.add(centro,BorderLayout.CENTER);
+        p.add(wrapper,BorderLayout.CENTER);
 
         JLabel rodape=new JLabel("Ouro do líder: $"+grupo[0].getDinheiro()+"   •   Próximo destino: Caverna dos Slimes",SwingConstants.CENTER);
         rodape.setForeground(OURO);
@@ -1035,8 +1065,8 @@ public class DeltaTriggerGUI {
         JLabel estado=new JLabel("<html><center>Recupera completamente HP e Mana.<br>O progresso também pode ser salvo aqui.</center></html>",SwingConstants.CENTER);estado.setForeground(TEXTO);estado.setFont(NORMAL);menu.add(estado,BorderLayout.CENTER);
         JPanel botoes=new JPanel(new GridLayout(0,1,8,8));botoes.setOpaque(false);
         JButton descansar=botao("DESCANSAR — RECUPERAR HP/MP"), salvar=botao("SALVAR JOGO"), voltar=botao("VOLTAR PARA ELDORIA");
-        descansar.addActionListener(e->{for(Personagem h:grupo)if(h.vivo())h.recuperarTudo();JOptionPane.showMessageDialog(janela,"O grupo descansou. HP e Mana foram restaurados.","Descanso concluído",JOptionPane.INFORMATION_MESSAGE);});
-        salvar.addActionListener(e->{boolean ok=SaveService.salvar(grupo,grupo[0].getNome(),"ELDORIA",5,grupo.length>=3);JOptionPane.showMessageDialog(janela,ok?"Jogo salvo com sucesso!":"Não foi possível salvar o jogo.","Salvar",ok?JOptionPane.INFORMATION_MESSAGE:JOptionPane.ERROR_MESSAGE);});
+        descansar.addActionListener(e->{for(Personagem h:grupo)if(h.vivo())h.recuperarTudo();mostrarAvisoEstilizado("Descanso concluído","O grupo descansou na pousada. HP e Mana foram restaurados por completo.");});
+        salvar.addActionListener(e->{boolean ok=SaveService.salvar(grupo,grupo[0].getNome(),"ELDORIA",5,grupo.length>=3);mostrarAvisoEstilizado(ok?"Salvar jogo":"Erro ao salvar",ok?"Jogo salvo com sucesso em Eldoria!":"Não foi possível salvar o jogo no momento.");});
         voltar.addActionListener(e->mostrarEldoria());
         botoes.add(descansar);botoes.add(salvar);botoes.add(voltar);menu.add(botoes,BorderLayout.SOUTH);
         GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.gridy=0;g.weightx=1;g.weighty=1;g.anchor=GridBagConstraints.SOUTHEAST;g.insets=new Insets(0,0,58,70);tela.add(menu,g);
@@ -1104,7 +1134,7 @@ public class DeltaTriggerGUI {
             if(grupo.length<3){
                 mostrarDialogoPersonagem("ELYRA","Também estou investigando a energia estranha que surgiu na região. Se vocês vão para a caverna, eu vou junto.","elyra_portrait_v2.jpg");
                 grupo=new Personagem[]{grupo[0],grupo[1],new Elyra()};mostrarTransicaoCurta("NOVO MEMBRO","Elyra entrou no grupo — Nv. 2",OURO);
-            }else JOptionPane.showMessageDialog(janela,"O taverneiro reforça o aviso: a Caverna dos Slimes está cada vez mais instável.","Rumores",JOptionPane.INFORMATION_MESSAGE);
+            }else mostrarAvisoEstilizado("Rumores","O taverneiro reforça o aviso: a Caverna dos Slimes está cada vez mais instável.");
             tavernaGUI();
         });
         voltar.addActionListener(e->mostrarEldoria());
@@ -1116,6 +1146,30 @@ public class DeltaTriggerGUI {
         final JDialog d=new JDialog(janela,nome,true);d.setSize(720,390);d.setLocationRelativeTo(janela);JPanel p=base();
         JPanel c=new JPanel(new BorderLayout(18,10));c.setOpaque(false);JLabel img=new JLabel(imagem(retrato,230,230),SwingConstants.CENTER);img.setBorder(BorderFactory.createLineBorder(OURO,2));c.add(img,BorderLayout.WEST);
         JPanel fala=moldura();JLabel n=new JLabel(nome);n.setForeground(OURO);n.setFont(new Font("Serif",Font.BOLD,25));fala.add(n,BorderLayout.NORTH);JTextArea t=new JTextArea(texto);t.setEditable(false);t.setLineWrap(true);t.setWrapStyleWord(true);t.setOpaque(false);t.setForeground(TEXTO);t.setFont(new Font("Serif",Font.PLAIN,19));fala.add(t);JButton ok=botao("CONTINUAR");ok.addActionListener(e->d.dispose());fala.add(ok,BorderLayout.SOUTH);c.add(fala);p.add(c);d.setContentPane(p);d.setVisible(true);
+    }
+    private void mostrarAvisoEstilizado(String titulo,String mensagem){
+        final JDialog d=new JDialog(janela,titulo,true);
+        d.setSize(700,300);
+        d.setLocationRelativeTo(janela);
+        JPanel p=base();
+        p.add(this.titulo(titulo.toUpperCase(Locale.ROOT)),BorderLayout.NORTH);
+        JTextArea texto=new JTextArea(mensagem);
+        texto.setEditable(false);
+        texto.setOpaque(false);
+        texto.setLineWrap(true);
+        texto.setWrapStyleWord(true);
+        texto.setForeground(TEXTO);
+        texto.setFont(new Font("Serif",Font.PLAIN,21));
+        texto.setBorder(new EmptyBorder(22,26,22,26));
+        p.add(texto,BorderLayout.CENTER);
+        JPanel sul=new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
+        sul.setOpaque(false);
+        JButton ok=botao("OK");
+        ok.addActionListener(e->d.dispose());
+        sul.add(ok);
+        p.add(sul,BorderLayout.SOUTH);
+        d.setContentPane(p);
+        d.setVisible(true);
     }
 
     private void painelGrupoInventario(){
