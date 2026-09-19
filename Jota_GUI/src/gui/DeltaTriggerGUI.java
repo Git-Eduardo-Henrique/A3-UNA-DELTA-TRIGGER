@@ -358,7 +358,7 @@ public class DeltaTriggerGUI {
     }
 
     private JPanel criarMenu(){
-        JPanel p=painelFundo("forest_bg.png");p.setLayout(new BorderLayout());
+        JPanel p=painelFundo("menu_bg.jpg");p.setLayout(new BorderLayout());
         JPanel sombra=new JPanel(new GridBagLayout());sombra.setOpaque(false);
         JPanel c=painelFlutuante();c.setPreferredSize(new Dimension(470,620));c.setLayout(new BoxLayout(c,BoxLayout.Y_AXIS));
         JLabel logo=new JLabel(imagem("logo.png",400,185));logo.setAlignmentX(.5f);
