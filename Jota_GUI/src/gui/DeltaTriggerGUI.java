@@ -206,6 +206,35 @@ public class DeltaTriggerGUI {
         p.setOpaque(true);p.setBackground(FUNDO);
         return p;
     }
+    private JPanel painelFundoCapa(final String arquivo){
+        File f=asset(arquivo);
+        final Image fundo=f.exists()?new ImageIcon(f.getPath()).getImage():null;
+        JPanel p=new JPanel(new GridBagLayout()){
+            @Override protected void paintComponent(Graphics g){
+                super.paintComponent(g);
+                int pw=getWidth(), ph=getHeight();
+                Graphics2D g2=(Graphics2D)g.create();
+                g2.setColor(FUNDO);
+                g2.fillRect(0,0,pw,ph);
+                if(fundo!=null){
+                    int iw=fundo.getWidth(this), ih=fundo.getHeight(this);
+                    if(iw>0&&ih>0){
+                        double escala=Math.max((double)pw/iw,(double)ph/ih);
+                        int w=(int)Math.ceil(iw*escala), h=(int)Math.ceil(ih*escala);
+                        int x=(pw-w)/2, y=(ph-h)/2;
+                        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                        g2.drawImage(fundo,x,y,w,h,this);
+                        g2.setPaint(new GradientPaint(0,0,new Color(0,4,14,30),0,ph,new Color(0,4,14,70)));
+                        g2.fillRect(0,0,pw,ph);
+                    }
+                }
+                g2.dispose();
+            }
+        };
+        p.setOpaque(true);
+        p.setBackground(FUNDO);
+        return p;
+    }
     private JPanel painelFlutuante(){
         JPanel p=new JPanel(new BorderLayout(10,10)){
             @Override protected void paintComponent(Graphics g){
@@ -393,16 +422,81 @@ public class DeltaTriggerGUI {
     }
 
     private void mostrarCreditos(){
-        final JDialog d=new JDialog(janela,"Créditos",true);d.setSize(650,520);d.setMinimumSize(new Dimension(610,500));d.setLocationRelativeTo(janela);
-        JPanel p=base();p.add(titulo("CRÉDITOS"),BorderLayout.NORTH);
-        JPanel c=new JPanel();c.setOpaque(false);c.setLayout(new BoxLayout(c,BoxLayout.Y_AXIS));c.setBorder(new EmptyBorder(18,34,18,34));
-        JLabel logo=new JLabel(imagem("logo.png",300,138),SwingConstants.CENTER);logo.setAlignmentX(.5f);
-        JLabel nome=new JLabel("DELTA TRIGGER",SwingConstants.CENTER);nome.setForeground(OURO);nome.setFont(new Font("Serif",Font.BOLD,28));nome.setAlignmentX(.5f);
-        JLabel info=new JLabel("<html><center>Projeto acadêmico em Java — POO + MVC<br><br><font color='#7ec8ff'><b>Projeto e código-base:</b></font> Equipe Delta Trigger<br><font color='#7ec8ff'><b>Base original:</b></font> versão V3.1 em modo console<br><br><font color='#e2a63a' size='5'><b>Dupla da GUI</b></font><br>Você + ChatGPT (OpenAI)<br><br><font color='#9fb7cf'>Interface, integração visual, inventário, batalhas e polimento construídos em parceria.</font></center></html>",SwingConstants.CENTER);
-        info.setForeground(TEXTO);info.setFont(new Font("Serif",Font.PLAIN,17));info.setAlignmentX(.5f);
-        JButton fechar=botao("VOLTAR");fechar.setAlignmentX(.5f);fechar.addActionListener(e->d.dispose());
-        c.add(logo);c.add(Box.createVerticalStrut(8));c.add(nome);c.add(Box.createVerticalStrut(16));c.add(info);c.add(Box.createVerticalGlue());c.add(fechar);
-        p.add(c,BorderLayout.CENTER);d.setContentPane(p);d.setVisible(true);
+        final JDialog d=new JDialog(janela,"Créditos",true);
+        d.setSize(760,680);
+        d.setMinimumSize(new Dimension(700,620));
+        d.setLocationRelativeTo(janela);
+
+        JPanel p=base();
+        p.add(titulo("CRÉDITOS"),BorderLayout.NORTH);
+
+        JPanel c=new JPanel();
+        c.setOpaque(false);
+        c.setLayout(new BoxLayout(c,BoxLayout.Y_AXIS));
+        c.setBorder(new EmptyBorder(14,34,18,34));
+
+        JLabel logo=new JLabel(imagem("logo.png",310,143),SwingConstants.CENTER);
+        logo.setAlignmentX(.5f);
+        JLabel nome=new JLabel("DELTA TRIGGER",SwingConstants.CENTER);
+        nome.setForeground(OURO);
+        nome.setFont(new Font("Serif",Font.BOLD,30));
+        nome.setAlignmentX(.5f);
+
+        JLabel projeto=new JLabel("Projeto acadêmico em Java — POO + MVC",SwingConstants.CENTER);
+        projeto.setForeground(TEXTO);
+        projeto.setFont(new Font("Serif",Font.PLAIN,18));
+        projeto.setAlignmentX(.5f);
+
+        JPanel autores=moldura();
+        autores.setMaximumSize(new Dimension(610,270));
+        autores.setPreferredSize(new Dimension(610,270));
+        autores.setLayout(new BoxLayout(autores,BoxLayout.Y_AXIS));
+        JLabel cab=new JLabel("DESENVOLVIDO POR",SwingConstants.CENTER);
+        cab.setForeground(OURO);
+        cab.setFont(new Font("Serif",Font.BOLD,21));
+        cab.setAlignmentX(.5f);
+        autores.add(cab);
+        autores.add(Box.createVerticalStrut(12));
+        String[] nomes={
+                "Joao Pedro de Castro Abreu",
+                "Luiz Guilherme Vilhena Pereira",
+                "Kainã Matheus da Rocha Souza",
+                "ChatGPT"
+        };
+        for(String n:nomes){
+            JLabel l=new JLabel(n,SwingConstants.CENTER);
+            l.setForeground(TEXTO);
+            l.setFont(new Font("Serif",Font.PLAIN,19));
+            l.setAlignmentX(.5f);
+            autores.add(l);
+            autores.add(Box.createVerticalStrut(8));
+        }
+
+        JLabel baseOriginal=new JLabel("Base original: Delta Trigger V3.1 em modo console",SwingConstants.CENTER);
+        baseOriginal.setForeground(new Color(159,183,207));
+        baseOriginal.setFont(new Font("Serif",Font.ITALIC,15));
+        baseOriginal.setAlignmentX(.5f);
+
+        JButton fechar=botao("VOLTAR");
+        fechar.setAlignmentX(.5f);
+        fechar.setMaximumSize(new Dimension(240,48));
+        fechar.addActionListener(e->d.dispose());
+
+        c.add(logo);
+        c.add(Box.createVerticalStrut(4));
+        c.add(nome);
+        c.add(Box.createVerticalStrut(8));
+        c.add(projeto);
+        c.add(Box.createVerticalStrut(18));
+        c.add(autores);
+        c.add(Box.createVerticalStrut(16));
+        c.add(baseOriginal);
+        c.add(Box.createVerticalGlue());
+        c.add(fechar);
+
+        p.add(c,BorderLayout.CENTER);
+        d.setContentPane(p);
+        d.setVisible(true);
     }
 
     private void carregarJogoGUI(){
@@ -539,7 +633,7 @@ public class DeltaTriggerGUI {
     }
 
     private JPanel criarMenu(){
-        JPanel p=painelFundo("menu_bg.jpg");p.setLayout(new BorderLayout());
+        JPanel p=painelFundoCapa("menu_bg.jpg");p.setLayout(new BorderLayout());
         JPanel sombra=new JPanel(new GridBagLayout());sombra.setOpaque(false);
         JPanel c=painelFlutuante();c.setPreferredSize(new Dimension(470,620));c.setLayout(new BoxLayout(c,BoxLayout.Y_AXIS));
         JLabel logo=new JLabel(imagem("logo.png",400,185));logo.setAlignmentX(.5f);
