@@ -50,3 +50,11 @@ ETAPA 5
 - Inimigos ficam abaixo do cenário e a arena suporta múltiplos alvos.
 - Botão ITEM abre consumíveis durante a batalha, permite escolher alvo e só consome quando tem efeito.
 - Próxima etapa iniciada: base para Caverna dos Slimes permanece após Eldoria.
+
+## VERSÃO GUI COMPLETA PARA TESTE
+- Conteúdo V3.1 preservado como base: história, escolha do líder, 5 waves da Floresta, Fenrok, level-up, Eldoria, Taverna, Elyra nível 2, Pousada/save, Loja, itens e equipamentos.
+- Batalha GUI com personagem do turno à esquerda, cenário por fase e 2–5 inimigos abaixo do cenário.
+- Itens utilizáveis em batalha sem consumo quando não têm efeito.
+- Habilidades GUI para Kael, Lyra e Elyra.
+- Distribuição de pontos de atributo após Fenrok.
+- Continuação jogável nova após o limite do V3.1: Caverna dos Slimes com 3 ondas, Rei Slime e encerramento da versão jogável.
