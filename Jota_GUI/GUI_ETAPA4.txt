@@ -1,0 +1,11 @@
+DELTA TRIGGER GUI — ETAPA 4
+
+Novidades:
+- Eldoria funcional depois de Fenrok.
+- Pousada: descansar e salvar.
+- Loja: comprar, vender e equipar.
+- Taverna: encontro de Elyra e entrada dela no grupo no nível 2.
+- Tela de grupo/equipamentos.
+- Transição para a Caverna dos Slimes.
+
+Execute src/MainGUI.java.
