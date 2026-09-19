@@ -1,29 +1,19 @@
-# Delta Trigger — GUI Polimento V5
+# Delta Trigger — GUI Opções & Créditos V6
 
-Versão de polimento visual e funcional construída sobre a GUI anterior e seguindo o V3.1 do jogo em console como referência de regras.
+Baseada na GUI Polimento V5 e na lógica do V3.1.
 
-## Rodar
+## Mudanças desta revisão
+- Removido o botão **GRUPO** da tela da Floresta dos Lobos.
+- Tela de **Opções** redesenhada no estilo azul/dourado.
+- Opções funcionais para:
+  - efeitos sonoros;
+  - animações/transições;
+  - velocidade automática do texto da história (Lenta, Normal, Rápida e Instantânea);
+  - janela maximizada;
+  - restaurar padrões.
+- **Créditos** agora têm uma tela própria, sem JOptionPane padrão.
+- Créditos registram a equipe original e a parceria da GUI: **Você + ChatGPT (OpenAI)**.
+- Opção de desligar animações realmente remove os efeitos/transições de combate.
 
-No IntelliJ, execute:
-
-`src/MainGUI.java`
-
-Ou pelo terminal, na pasta do projeto:
-
-```bash
-javac -encoding UTF-8 -d out $(find src -name "*.java")
-java -cp out MainGUI
-```
-
-## Destaques da V5
-
-- Batalhas com feedback visual, transições de wave, vitória, level up e Game Over.
-- Mochila com comparação de equipamentos e opção de desequipar.
-- Loja gráfica com comprar, vender e equipar.
-- Grupo com acesso direto ao inventário de cada personagem.
-- Menu com Continuar/Save, Opções e Créditos.
-- Mapa de progresso da jornada.
-- Diálogo visual estilo RPG.
-- Layout mais adaptável a diferentes resoluções.
-
-Veja `GUI_POLIMENTO_V5.txt` para a lista completa.
+## Executar
+Abra `src/MainGUI.java` e rode `main()`.

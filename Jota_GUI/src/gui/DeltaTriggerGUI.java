@@ -19,6 +19,9 @@ public class DeltaTriggerGUI {
     private JPanel cardHeroiAtivo;
     private boolean animandoAcao=false;
     private boolean somLigado=true;
+    private boolean animacoesLigadas=true;
+    private int velocidadeHistoriaMs=28;
+    private int letrasHistoriaPorTick=2;
     // Estado da nova interface de mochila/inventário
     private JDialog mochilaDialog;
     private JPanel mochilaConteudo, mochilaCentro, mochilaGrid, mochilaDetalhes, mochilaEquipamentos;
@@ -143,6 +146,7 @@ public class DeltaTriggerGUI {
     }
 
     private void mostrarTransicaoCurta(String cabecalho,String detalhe,Color destaque){
+        if(!animacoesLigadas)return;
         if(janela==null||!janela.isShowing())return;
         final JDialog d=new JDialog(janela,false);
         d.setUndecorated(true);
@@ -156,6 +160,7 @@ public class DeltaTriggerGUI {
     }
 
     private void animarDano(final JComponent alvo,final Color cor,final Runnable depois){
+        if(!animacoesLigadas){if(depois!=null)depois.run();return;}
         if(alvo==null){if(depois!=null)depois.run();return;}
         habilitarAcoesBatalha(false);
         final Point original=alvo.getLocation();
@@ -178,14 +183,55 @@ public class DeltaTriggerGUI {
     }
 
     private void mostrarOpcoes(){
-        JDialog d=new JDialog(janela,"Opções",true);d.setSize(430,280);d.setLocationRelativeTo(janela);
+        final JDialog d=new JDialog(janela,"Opções",true);
+        d.setSize(650,520);d.setMinimumSize(new Dimension(610,500));d.setLocationRelativeTo(janela);
         JPanel p=base();p.add(titulo("OPÇÕES"),BorderLayout.NORTH);
-        JPanel c=new JPanel();c.setOpaque(false);c.setLayout(new BoxLayout(c,BoxLayout.Y_AXIS));
-        JCheckBox som=new JCheckBox("Efeitos sonoros do sistema",somLigado);som.setOpaque(false);som.setForeground(TEXTO);som.setFont(NORMAL);som.setAlignmentX(.5f);
+
+        JPanel centro=new JPanel();centro.setOpaque(false);centro.setLayout(new BoxLayout(centro,BoxLayout.Y_AXIS));
+        centro.setBorder(new EmptyBorder(16,24,8,24));
+
+        JLabel secAudio=new JLabel("ÁUDIO E EFEITOS");secAudio.setForeground(OURO);secAudio.setFont(new Font("Serif",Font.BOLD,19));secAudio.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JCheckBox som=new JCheckBox("Efeitos sonoros do sistema",somLigado);som.setOpaque(false);som.setForeground(TEXTO);som.setFont(NORMAL);som.setAlignmentX(Component.LEFT_ALIGNMENT);
         som.addActionListener(e->somLigado=som.isSelected());
-        JLabel info=new JLabel("<html><center>A interface se adapta ao tamanho da janela.<br>Você pode maximizar o jogo normalmente.</center></html>",SwingConstants.CENTER);info.setForeground(AZULC);info.setAlignmentX(.5f);
-        JButton fechar=botao("FECHAR");fechar.setAlignmentX(.5f);fechar.addActionListener(e->d.dispose());
-        c.add(Box.createVerticalStrut(18));c.add(som);c.add(Box.createVerticalStrut(18));c.add(info);c.add(Box.createVerticalGlue());c.add(fechar);p.add(c);d.setContentPane(p);d.setVisible(true);
+        JCheckBox animacoes=new JCheckBox("Animações de batalha e transições",animacoesLigadas);animacoes.setOpaque(false);animacoes.setForeground(TEXTO);animacoes.setFont(NORMAL);animacoes.setAlignmentX(Component.LEFT_ALIGNMENT);
+        animacoes.addActionListener(e->animacoesLigadas=animacoes.isSelected());
+
+        JLabel secTexto=new JLabel("LEITURA E INTERFACE");secTexto.setForeground(OURO);secTexto.setFont(new Font("Serif",Font.BOLD,19));secTexto.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JPanel linhaTexto=new JPanel(new BorderLayout(12,0));linhaTexto.setOpaque(false);linhaTexto.setMaximumSize(new Dimension(Integer.MAX_VALUE,42));linhaTexto.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel rotuloVel=new JLabel("Velocidade do texto da história:");rotuloVel.setForeground(TEXTO);rotuloVel.setFont(NORMAL);
+        final String[] velocidades={"Lenta","Normal","Rápida","Instantânea"};
+        JComboBox<String> velocidade=new JComboBox<String>(velocidades);velocidade.setFont(new Font("Serif",Font.BOLD,15));velocidade.setBackground(new Color(8,25,48));velocidade.setForeground(TEXTO);
+        if(velocidadeHistoriaMs==45)velocidade.setSelectedIndex(0);else if(velocidadeHistoriaMs==15)velocidade.setSelectedIndex(2);else if(velocidadeHistoriaMs==0)velocidade.setSelectedIndex(3);else velocidade.setSelectedIndex(1);
+        velocidade.addActionListener(e->{int i=velocidade.getSelectedIndex();if(i==0){velocidadeHistoriaMs=45;letrasHistoriaPorTick=1;}else if(i==1){velocidadeHistoriaMs=28;letrasHistoriaPorTick=2;}else if(i==2){velocidadeHistoriaMs=15;letrasHistoriaPorTick=3;}else{velocidadeHistoriaMs=0;letrasHistoriaPorTick=9999;}});
+        linhaTexto.add(rotuloVel,BorderLayout.CENTER);linhaTexto.add(velocidade,BorderLayout.EAST);
+
+        JCheckBox maximizar=new JCheckBox("Jogar com a janela maximizada",(janela.getExtendedState()&JFrame.MAXIMIZED_BOTH)!=0);maximizar.setOpaque(false);maximizar.setForeground(TEXTO);maximizar.setFont(NORMAL);maximizar.setAlignmentX(Component.LEFT_ALIGNMENT);
+        maximizar.addActionListener(e->{if(maximizar.isSelected())janela.setExtendedState(JFrame.MAXIMIZED_BOTH);else janela.setExtendedState(JFrame.NORMAL);});
+
+        JLabel dica=new JLabel("<html><font color='#7ec8ff'>Dica:</font> as opções valem durante esta execução do jogo. A velocidade escolhida será usada na próxima cena de história.</html>");dica.setForeground(AZULC);dica.setFont(new Font("Serif",Font.PLAIN,14));dica.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        centro.add(secAudio);centro.add(Box.createVerticalStrut(8));centro.add(som);centro.add(Box.createVerticalStrut(7));centro.add(animacoes);
+        centro.add(Box.createVerticalStrut(22));centro.add(secTexto);centro.add(Box.createVerticalStrut(10));centro.add(linhaTexto);centro.add(Box.createVerticalStrut(10));centro.add(maximizar);centro.add(Box.createVerticalStrut(18));centro.add(dica);centro.add(Box.createVerticalGlue());
+
+        JPanel rodape=new JPanel(new FlowLayout(FlowLayout.RIGHT,10,0));rodape.setOpaque(false);
+        JButton padrao=botao("RESTAURAR PADRÃO");
+        padrao.addActionListener(e->{somLigado=true;animacoesLigadas=true;velocidadeHistoriaMs=28;letrasHistoriaPorTick=2;som.setSelected(true);animacoes.setSelected(true);velocidade.setSelectedIndex(1);maximizar.setSelected(false);janela.setExtendedState(JFrame.NORMAL);});
+        JButton fechar=botao("SALVAR E FECHAR");fechar.addActionListener(e->d.dispose());
+        rodape.add(padrao);rodape.add(fechar);
+        p.add(centro,BorderLayout.CENTER);p.add(rodape,BorderLayout.SOUTH);d.setContentPane(p);d.setVisible(true);
+    }
+
+    private void mostrarCreditos(){
+        final JDialog d=new JDialog(janela,"Créditos",true);d.setSize(650,520);d.setMinimumSize(new Dimension(610,500));d.setLocationRelativeTo(janela);
+        JPanel p=base();p.add(titulo("CRÉDITOS"),BorderLayout.NORTH);
+        JPanel c=new JPanel();c.setOpaque(false);c.setLayout(new BoxLayout(c,BoxLayout.Y_AXIS));c.setBorder(new EmptyBorder(18,34,18,34));
+        JLabel logo=new JLabel(imagem("logo.png",300,138),SwingConstants.CENTER);logo.setAlignmentX(.5f);
+        JLabel nome=new JLabel("DELTA TRIGGER",SwingConstants.CENTER);nome.setForeground(OURO);nome.setFont(new Font("Serif",Font.BOLD,28));nome.setAlignmentX(.5f);
+        JLabel info=new JLabel("<html><center>Projeto acadêmico em Java — POO + MVC<br><br><font color='#7ec8ff'><b>Projeto e código-base:</b></font> Equipe Delta Trigger<br><font color='#7ec8ff'><b>Base original:</b></font> versão V3.1 em modo console<br><br><font color='#e2a63a' size='5'><b>Dupla da GUI</b></font><br>Você + ChatGPT (OpenAI)<br><br><font color='#9fb7cf'>Interface, integração visual, inventário, batalhas e polimento construídos em parceria.</font></center></html>",SwingConstants.CENTER);
+        info.setForeground(TEXTO);info.setFont(new Font("Serif",Font.PLAIN,17));info.setAlignmentX(.5f);
+        JButton fechar=botao("VOLTAR");fechar.setAlignmentX(.5f);fechar.addActionListener(e->d.dispose());
+        c.add(logo);c.add(Box.createVerticalStrut(8));c.add(nome);c.add(Box.createVerticalStrut(16));c.add(info);c.add(Box.createVerticalGlue());c.add(fechar);
+        p.add(c,BorderLayout.CENTER);d.setContentPane(p);d.setVisible(true);
     }
 
     private void carregarJogoGUI(){
@@ -321,7 +367,7 @@ public class DeltaTriggerGUI {
         for(JButton b:new JButton[]{novo,continuar,opcoes,creditos,sair}){b.setAlignmentX(.5f);b.setMaximumSize(new Dimension(360,52));}
         continuar.setEnabled(SaveService.existeSave());
         novo.addActionListener(e->iniciarHistoria());continuar.addActionListener(e->carregarJogoGUI());opcoes.addActionListener(e->mostrarOpcoes());
-        creditos.addActionListener(e->JOptionPane.showMessageDialog(janela,"DELTA TRIGGER\nProjeto acadêmico em Java — POO + MVC\nGUI em Swing, lógica baseada no V3.1.","Créditos",JOptionPane.INFORMATION_MESSAGE));
+        creditos.addActionListener(e->mostrarCreditos());
         sair.addActionListener(e->janela.dispose());
         c.add(Box.createVerticalGlue());c.add(logo);c.add(sub);c.add(Box.createVerticalStrut(24));
         for(JButton b:new JButton[]{novo,continuar,opcoes,creditos,sair}){c.add(b);c.add(Box.createVerticalStrut(9));}
@@ -330,12 +376,12 @@ public class DeltaTriggerGUI {
     }
     private JTextArea textoHistoria; private JButton continuarHistoria;
     private JPanel criarHistoria(){JPanel p=base();p.add(titulo("HISTÓRIA"),BorderLayout.NORTH);textoHistoria=new JTextArea();textoHistoria.setEditable(false);textoHistoria.setLineWrap(true);textoHistoria.setWrapStyleWord(true);textoHistoria.setFont(new Font("Serif",Font.PLAIN,22));textoHistoria.setForeground(TEXTO);textoHistoria.setBackground(PAINEL);textoHistoria.setBorder(new EmptyBorder(55,80,55,80));JScrollPane sp=new JScrollPane(textoHistoria);sp.setBorder(BorderFactory.createLineBorder(OURO,2));p.add(sp);continuarHistoria=botao("CONTINUAR");continuarHistoria.setEnabled(false);continuarHistoria.addActionListener(e->telas.show(raiz,"ESCOLHA"));JButton pular=botao("MOSTRAR TEXTO TODO");pular.addActionListener(e->finalizarHistoria());JPanel s=new JPanel(new FlowLayout(FlowLayout.CENTER,15,0));s.setOpaque(false);s.add(pular);s.add(continuarHistoria);p.add(s,BorderLayout.SOUTH);return p;}
-    private void iniciarHistoria(){textoHistoria.setText("");indiceLetra=0;continuarHistoria.setEnabled(false);telas.show(raiz,"HISTORIA");if(timerHistoria!=null)timerHistoria.stop();timerHistoria=new javax.swing.Timer(28,e->{if(indiceLetra<historia.length()){int n=Math.min(2,historia.length()-indiceLetra);textoHistoria.append(historia.substring(indiceLetra,indiceLetra+n));indiceLetra+=n;}else{timerHistoria.stop();continuarHistoria.setEnabled(true);}});timerHistoria.start();}
+    private void iniciarHistoria(){textoHistoria.setText("");indiceLetra=0;continuarHistoria.setEnabled(false);telas.show(raiz,"HISTORIA");if(timerHistoria!=null)timerHistoria.stop();if(velocidadeHistoriaMs<=0){finalizarHistoria();return;}timerHistoria=new javax.swing.Timer(velocidadeHistoriaMs,e->{if(indiceLetra<historia.length()){int n=Math.min(letrasHistoriaPorTick,historia.length()-indiceLetra);textoHistoria.append(historia.substring(indiceLetra,indiceLetra+n));indiceLetra+=n;}else{timerHistoria.stop();continuarHistoria.setEnabled(true);}});timerHistoria.start();}
     private void finalizarHistoria(){if(timerHistoria!=null)timerHistoria.stop();textoHistoria.setText(historia);continuarHistoria.setEnabled(true);}
     private JPanel criarEscolha(){JPanel p=base();p.add(titulo("ESCOLHA SEU PERSONAGEM"),BorderLayout.NORTH);JPanel cards=new JPanel(new GridLayout(1,2,24,0));cards.setOpaque(false);cards.add(cardPersonagem("KAEL","O IRMÃO — Guerreiro / Atacante","Força, disciplina e um coração que nunca desiste.",imagemHeroiCompleta("Kael"),1));cards.add(cardPersonagem("LYRA","A IRMÃ — Suporte / Mágica","Conhecimento, empatia e um poder que inspira esperança.",imagemHeroiCompleta("Lyra"),2));p.add(cards);return p;}
     private JPanel cardPersonagem(String nome,String classe,String desc,String arq,int escolha){JPanel c=new JPanel(new BorderLayout(8,8));c.setBackground(PAINEL);c.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(AZUL,2),new EmptyBorder(14,20,14,20)));JLabel n=new JLabel("<html><center><font size='7'>"+nome+"</font><br>"+classe+"</center></html>",SwingConstants.CENTER);n.setForeground(OURO);c.add(n,BorderLayout.NORTH);JLabel foto=new JLabel(imagem(arq,330,330),SwingConstants.CENTER);c.add(foto);JTextArea d=new JTextArea(desc+"\n\n"+(escolha==1?"HP 120 • Mana 30":"HP 90 • Mana 60"));d.setEditable(false);d.setOpaque(false);d.setForeground(TEXTO);d.setFont(NORMAL);d.setLineWrap(true);d.setWrapStyleWord(true);JButton b=botao("SELECIONAR "+nome);b.addActionListener(e->iniciarJogo(escolha));JPanel sul=new JPanel(new BorderLayout(5,5));sul.setOpaque(false);sul.add(d);sul.add(b,BorderLayout.SOUTH);c.add(sul,BorderLayout.SOUTH);return c;}
     private void iniciarJogo(int lider){grupo=new Personagem[]{new Guerreiro(),new Suporte()}; if(lider==2){Personagem t=grupo[0];grupo[0]=grupo[1];grupo[1]=t;} wave=0;JPanel f=criarFloresta();raiz.add(f,"FLORESTA");telas.show(raiz,"FLORESTA");}
-    private JPanel criarFloresta(){JPanel p=base();p.add(titulo("FLORESTA DOS LOBOS — ÁREA NORMAL"),BorderLayout.NORTH);JLabel bg=new JLabel(imagem("forest_bg.png",900,440));bg.setBorder(BorderFactory.createLineBorder(AZUL,2));p.add(bg);JTextArea txt=new JTextArea("> Você entrou na Floresta dos Lobos.\nO som da água ecoa pelas rochas. Há pegadas recentes no caminho.\n\nObjetivo: atravesse as ondas de lobos e encontre Fenrok.");txt.setEditable(false);txt.setForeground(TEXTO);txt.setBackground(PAINEL);txt.setFont(NORMAL);txt.setRows(5);txt.setBorder(new EmptyBorder(10,12,10,12));JButton explorar=botao("EXPLORAR / INICIAR ONDAS"), inv=botao("INVENTÁRIO"), pers=botao("GRUPO");explorar.addActionListener(e->{wave=0;proximaOnda();});inv.addActionListener(e->mostrarInventario());pers.addActionListener(e->mostrarGrupo());JPanel bs=new JPanel(new FlowLayout(FlowLayout.LEFT));bs.setOpaque(false);bs.add(explorar);bs.add(inv);bs.add(pers);JPanel s=new JPanel(new BorderLayout());s.setOpaque(false);s.add(txt);s.add(bs,BorderLayout.SOUTH);p.add(s,BorderLayout.SOUTH);return p;}
+    private JPanel criarFloresta(){JPanel p=base();p.add(titulo("FLORESTA DOS LOBOS — ÁREA NORMAL"),BorderLayout.NORTH);JLabel bg=new JLabel(imagem("forest_bg.png",900,440));bg.setBorder(BorderFactory.createLineBorder(AZUL,2));p.add(bg);JTextArea txt=new JTextArea("> Você entrou na Floresta dos Lobos.\nO som da água ecoa pelas rochas. Há pegadas recentes no caminho.\n\nObjetivo: atravesse as ondas de lobos e encontre Fenrok.");txt.setEditable(false);txt.setForeground(TEXTO);txt.setBackground(PAINEL);txt.setFont(NORMAL);txt.setRows(5);txt.setBorder(new EmptyBorder(10,12,10,12));JButton explorar=botao("EXPLORAR / INICIAR ONDAS"), inv=botao("INVENTÁRIO");explorar.addActionListener(e->{wave=0;proximaOnda();});inv.addActionListener(e->mostrarInventario());JPanel bs=new JPanel(new FlowLayout(FlowLayout.LEFT));bs.setOpaque(false);bs.add(explorar);bs.add(inv);JPanel s=new JPanel(new BorderLayout());s.setOpaque(false);s.add(txt);s.add(bs,BorderLayout.SOUTH);p.add(s,BorderLayout.SOUTH);return p;}
     private void proximaOnda(){wave++;if(wave==1)inimigos=new Inimigo[]{LoboFactory.criarLobinho(),LoboFactory.criarLobinho(),LoboFactory.criarLobinho()};else if(wave==2)inimigos=new Inimigo[]{LoboFactory.criarLobinho(),LoboFactory.criarLobinho(),LoboFactory.criarLobinho()};else if(wave==3)inimigos=new Inimigo[]{LoboFactory.criarLobo(),LoboFactory.criarLobo()};else if(wave==4)inimigos=new Inimigo[]{LoboFactory.criarLobo(),LoboFactory.criarLobo(),LoboFactory.criarLobo()};else if(wave==5)inimigos=new Inimigo[]{new Fenrok()};else{mostrarTransicao();return;}turnoHeroi=0;JPanel b=criarBatalha();raiz.add(b,"BATALHA");telas.show(raiz,"BATALHA");
         String fase=wave==5?"CHEFE — FENROK":("WAVE "+wave+" / 5");mostrarTransicaoCurta(fase,nomeCenarioBatalha(),wave==5?OURO:AZULC);
     }
