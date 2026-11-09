@@ -1,3 +1,10 @@
+// ============================================================
+// ARQUIVO: CidadeView.java
+// Cuida da tela da cidade: pousada (descansar/salvar), loja
+// (comprar/vender/equipar), taverna (missoes/rumores) e menu
+// do grupo (atributos e inventario).
+// ============================================================
+
 package view;
 
 import model.*;
@@ -5,14 +12,19 @@ import util.*;
 import java.util.List;
 
 public final class CidadeView {
+
+    // Construtor privado: a classe so tem metodos estaticos.
     private CidadeView() {}
 
+    // Guarda o que aconteceu na cidade e precisa ser levado de volta
+    // para o controlador do jogo.
     public static class Resultado {
-        public boolean irCaverna;
-        public boolean elyraEntrou;
-        public boolean elyraRecusada;
+        public boolean irCaverna;      // O jogador aceitou ir para a caverna?
+        public boolean elyraEntrou;    // A Elyra entrou no grupo?
+        public boolean elyraRecusada;  // O jogador recusou a Elyra?
     }
 
+    // Abre o menu principal da cidade e fica nele ate o jogador sair.
     public static Resultado abrir(Grupo grupo, String cidade, boolean elyraEntrou, boolean elyraRecusada, int waveFloresta) {
         Resultado resultado = new Resultado();
         resultado.elyraEntrou = elyraEntrou;
@@ -41,6 +53,7 @@ public final class CidadeView {
         }
     }
 
+    // Mostra o cabecalho da cidade e explica cada opcao do menu.
     private static void cabecalho(String cidade) {
         System.out.println("\n========================================");
         System.out.println("               " + cidade.toUpperCase());
@@ -51,6 +64,7 @@ public final class CidadeView {
         System.out.println("Grupo: personagens, atributos e equipamentos.");
     }
 
+    // Pousada: permite descansar (recuperar tudo) e salvar o jogo.
     private static void pousada(Grupo g, String cidade, int wave, Resultado r) {
         while (true) {
             System.out.println("\n=== POUSADA ===");
@@ -70,6 +84,7 @@ public final class CidadeView {
         }
     }
 
+    // Loja: menu para comprar, vender ou equipar equipamentos.
     private static void loja(Grupo g) {
         while (true) {
             System.out.println("\n=== LOJA ===");
@@ -87,6 +102,7 @@ public final class CidadeView {
         }
     }
 
+    // Compra equipamentos ou itens, descontando o ouro do grupo.
     private static void comprar(Grupo g) {
         List<Item> itens = DadosService.itensDaLoja();
         List<Equipamento> equipamentos = DadosService.equipamentosDaLoja();
@@ -119,6 +135,7 @@ public final class CidadeView {
         }
     }
 
+    // Vende itens por metade do preco (minimo 1 de ouro por unidade).
     private static void vender(Grupo g) {
         if (g.getInventario().getItens().isEmpty()) { System.out.println(Cores.aviso("Nenhum item para vender.")); return; }
         while (true) {
@@ -138,6 +155,7 @@ public final class CidadeView {
         }
     }
 
+    // Escolhe um personagem e equipa nele um equipamento do inventario.
     private static void equipar(Grupo g) {
         if(g.getInventario().getEquipamentos().isEmpty()){System.out.println(Cores.aviso("Nenhum equipamento no inventario do grupo."));return;}
         Personagem p=escolherPersonagem(g); if(p==null)return;
@@ -160,6 +178,7 @@ public final class CidadeView {
         }
     }
 
+    // Menu do grupo: ver personagens, equipar, melhorar atributos e ver inventario.
     private static void grupo(Grupo g) {
         while(true){
             System.out.println("\n=== GRUPO ===");
@@ -178,6 +197,7 @@ public final class CidadeView {
         }
     }
 
+    // Mostra um resumo dos dados de um personagem.
     private static void mostrarResumo(Personagem p){
         System.out.println("\n"+Cores.nomePersonagem(p.getNome())+" | Nivel "+p.getNivel()+" | HP "+p.getVida()+"/"+p.getVidaMaxima()+" | Mana "+p.getMana()+"/"+p.getManaMaxima());
         System.out.println("Forca: "+p.getForca()+" | Defesa: "+p.getDefesa()+" | Inteligencia: "+p.getInteligencia());
@@ -187,6 +207,7 @@ public final class CidadeView {
         if(p.getPontosAtributo()>0)System.out.println(Cores.aviso("Pontos de atributo disponiveis: "+p.getPontosAtributo()));
     }
 
+    // Gasta os pontos de atributo ganhos ao subir de nivel.
     private static void melhorarAtributos(Grupo g){
         Personagem p=escolherPersonagem(g); if(p==null)return;
         while(p.getPontosAtributo()>0){
@@ -206,12 +227,21 @@ public final class CidadeView {
         }
     }
 
+    // Devolve o valor do atributo conforme o numero da opcao (1 a 6).
     private static int valorAtributo(Personagem p,int op){switch(op){case 1:return p.getForca();case 2:return p.getDefesa();case 3:return p.getInteligencia();case 4:return p.getResistencia();case 5:return p.getVelocidade();case 6:return p.getSorte();default:return -1;}}
+    // Devolve o nome do atributo conforme o numero da opcao (1 a 6).
     private static String nomeAtributo(int op){switch(op){case 1:return "Forca";case 2:return "Defesa";case 3:return "Inteligencia";case 4:return "Resistencia";case 5:return "Velocidade";case 6:return "Sorte";default:return "Atributo";}}
+    // Mostra os atributos atuais do personagem em uma unica linha.
     private static void mostrarAtributos(Personagem p){System.out.println("Atributos atuais: Forca "+p.getForca()+" | Defesa "+p.getDefesa()+" | Inteligencia "+p.getInteligencia()+" | Resistencia "+p.getResistencia()+" | Velocidade "+p.getVelocidade()+" | Sorte "+p.getSorte());}
+    // Devolve o nome do equipamento ou "nenhum" se estiver vazio.
     private static String nome(Equipamento e){return e==null?"nenhum":e.getNome();}
+
+    // Mostra os personagens e deixa o jogador escolher um.
     private static Personagem escolherPersonagem(Grupo g){System.out.println("\nEscolha o personagem:");for(int i=0;i<g.getPersonagens().size();i++)System.out.println((i+1)+" - "+Cores.nomePersonagem(g.getPersonagens().get(i).getNome()));System.out.println("0 - Voltar");int op=Entrada.lerInt("Escolha: ");if(op==0)return null;if(op<1||op>g.getPersonagens().size()){System.out.println(Cores.aviso("Personagem invalido."));return null;}return g.getPersonagens().get(op-1);}
 
+    // Taverna de Eldoria: mostra a missao da caverna e os rumores
+    // (rumores podem fazer a Elyra entrar no grupo).
+    // Retorna um array com os estados: entrou, recusada e irCaverna.
     private static boolean[] tavernaEldoria(Grupo g, boolean entrou, boolean recusada){
         while(true){
             System.out.println("\n=== TAVERNA DE ELDORIA ===");
@@ -240,6 +270,8 @@ public final class CidadeView {
         }
     }
 
+    // Evento de encontro com a Elyra: mostra a conversa e pergunta
+    // se o jogador quer que ela entre no grupo.
     private static boolean eventoElyra(Grupo g){
         System.out.println("\n=== RUMORES DE ELDORIA ===");
         System.out.println("Uma figura surge entre as arvores, observando o grupo de longe.");
@@ -262,7 +294,9 @@ public final class CidadeView {
         System.out.println("Elyra entra com seu equipamento inicial ja equipado.");Entrada.enter();return true;
     }
 
+    // Taverna das outras cidades: so mostra um texto de ambientacao.
     private static void tavernaGenerica(String cidade){System.out.println("\nA taverna de "+cidade+" esta cheia de viajantes.");System.out.println("Rumores sobre a regiao, criaturas e antigas historias circulam entre as mesas.");Entrada.enter();}
 
+    // Cria uma copia do equipamento (usado ao comprar varias unidades).
     private static Equipamento clonar(Equipamento e){return new Equipamento(e.getNome(),e.getTipo(),e.getRaridade(),e.getClassePermitida(),e.getPreco(),e.getForca(),e.getDefesa(),e.getInteligencia(),e.getResistencia(),e.getVelocidade(),e.getSorte());}
 }

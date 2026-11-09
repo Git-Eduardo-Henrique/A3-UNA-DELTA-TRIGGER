@@ -1,7 +1,14 @@
+// ============================================================
+// ARQUIVO: Cores.java
+// Guarda os codigos de cor usados no terminal e ajuda a pintar
+// os textos do jogo (nomes, avisos, magias etc).
+// Cada constante e um codigo especial que muda a cor da letra.
+// ============================================================
+
 package model;
 
 public final class Cores {
-    public static final String RESET = "\u001B[0m";
+    public static final String RESET = "\u001B[0m"; // Volta a cor normal.
     public static final String AZUL = "\u001B[34m";
     public static final String ROSA = "\u001B[95m";
     public static final String VERDE = "\u001B[32m";
@@ -11,7 +18,11 @@ public final class Cores {
     public static final String CINZA = "\u001B[37m";
     public static final String CIANO = "\u001B[36m";
     public static final String DOURADO = "\u001B[33m";
+    // Construtor privado: impede criar objetos desta classe,
+    // pois ela so serve como "caixa" de cores.
     private Cores() {}
+
+    // Cada metodo abaixo devolve o texto recebido ja com uma cor.
     public static String normal(String s) { return CINZA + s + RESET; }
     public static String kael(String s) { return AZUL + s + RESET; }
     public static String lyra(String s) { return ROSA + s + RESET; }
@@ -23,12 +34,14 @@ public final class Cores {
     public static String magia(String s) { return ROXO + s + RESET; }
     public static String ciano(String s) { return CIANO + s + RESET; }
     public static String vermelho(String s) { return VERMELHO + s + RESET; }
+    // Pinta o nome de acordo com o personagem (cada um tem sua cor).
     public static String nomePersonagem(String nome) {
         if ("Kael".equalsIgnoreCase(nome)) return kael(nome);
         if ("Lyra".equalsIgnoreCase(nome)) return lyra(nome);
         if ("Elyra".equalsIgnoreCase(nome)) return elyra(nome);
         return normal(nome);
     }
+    // Pinta um texto conforme a raridade do item (Comum, Raro etc).
     public static String raridade(String raridade, String texto) {
         if (raridade == null) return texto;
         if ("Comum".equalsIgnoreCase(raridade)) return VERDE + texto + RESET;

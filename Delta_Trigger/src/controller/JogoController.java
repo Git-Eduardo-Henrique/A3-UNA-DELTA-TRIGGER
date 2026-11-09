@@ -1,3 +1,10 @@
+// ============================================================
+// ARQUIVO: JogoController.java
+// E o "cerebro" do jogo: liga as telas (view) com as regras e os
+// dados (model). Controla a historia, as batalhas, as waves,
+// a passagem para a cidade e o carregamento de jogos salvos.
+// ============================================================
+
 package controller;
 
 import model.*;
@@ -5,14 +12,19 @@ import util.*;
 import view.*;
 
 public class JogoController {
-    private Grupo grupo;
-    private String localAtual="INICIO";
-    private int waveFloresta=0;
-    private boolean elyraEntrou=false;
-    private boolean elyraRecusada=false;
-    private final Caverna florestaDosLobos=CenarioService.florestaDosLobos();
-    private final Caverna cavernaDosSlimes=CenarioService.cavernaDosSlimes();
+    // Estado atual da partida.
+    private Grupo grupo;                       // Personagens do jogador.
+    private String localAtual = "INICIO";      // Onde o jogador esta agora.
+    private int waveFloresta = 0;              // Ultima wave vencida na floresta.
+    private boolean elyraEntrou = false;       // A Elyra ja entrou no grupo?
+    private boolean elyraRecusada = false;     // O jogador ja recusou a Elyra?
 
+    // Cenario da floresta e da caverna (criados uma vez).
+    private final Caverna florestaDosLobos = CenarioService.florestaDosLobos();
+    private final Caverna cavernaDosSlimes = CenarioService.cavernaDosSlimes();
+
+    // Comeca um jogo novo: introducao, escolha do lider, montagem
+    // do grupo e inicio da floresta.
     public void iniciarNovoJogo(){
         DadosService.carregarDados();
         if(!introducao())return;
@@ -31,6 +43,7 @@ public class JogoController {
         cenaFloresta(); iniciarFloresta();
     }
 
+    // Retoma uma partida a partir de um save carregado.
     public void iniciarCarregado(SaveService.DadosSave save){
         grupo=save.grupo; localAtual=save.local; waveFloresta=save.waveFloresta; elyraEntrou=save.elyraEntrou; elyraRecusada=save.elyraRecusada;
         grupo.definirLider(save.grupo.getLider());
@@ -39,6 +52,7 @@ public class JogoController {
         else System.out.println(Cores.aviso("Este ponto do save ainda nao possui retorno nesta demo."));
     }
 
+    // Mostra os textos da introducao, um por um, esperando ENTER.
     private boolean introducao(){
         MenuView.titulo();
         String[] ch={"INTRO_1","INTRO_2","INTRO_3","INTRO_4","INTRO_5","INTRO_6","INTRO_7"};
@@ -46,6 +60,7 @@ public class JogoController {
         return true;
     }
 
+    // Mostra a cena de chegada a Floresta dos Lobos.
     private void cenaFloresta(){
         System.out.println("\n========================================\n          FLORESTA DOS LOBOS\n========================================");
         System.out.println("Lider escolhido: "+Cores.nomePersonagem(grupo.getLider()));
@@ -53,6 +68,8 @@ public class JogoController {
         Entrada.enter();
     }
 
+    // Roda as 5 waves da floresta. Se perder, e game over.
+    // Ao vencer todas, enfrenta o chefe Fenrok.
     private void iniciarFloresta(){
         for(int wave=waveFloresta+1;wave<=5;wave++){
             waveFloresta=wave; mostrarWave(wave);
@@ -65,6 +82,7 @@ public class JogoController {
         finalizarFenrok();
     }
 
+    // Cria os inimigos de uma wave a partir dos dados do cenario.
     private Inimigo[] criarWave(Caverna caverna,int numero){
         for(Wave wave:caverna.getWaves()) if(wave.getNumero()==numero){
             Inimigo[] lista=new Inimigo[wave.getInimigos().size()];
@@ -74,6 +92,7 @@ public class JogoController {
         return new Inimigo[0];
     }
 
+    // Mostra o numero/mensagem da wave antes da batalha comecar.
     private void mostrarWave(int w){
         System.out.println("\n========================================");
         System.out.println(w<5?"          WAVE "+w+"/5":Cores.inimigo("              CHEFE"));
@@ -82,6 +101,8 @@ public class JogoController {
         Entrada.enter();
     }
 
+    // Depois de derrotar Fenrok: entrega recompensas, sobe de nivel,
+    // distribui pontos e leva o grupo para Eldoria.
     private void finalizarFenrok(){
         System.out.println("\n========================================\n"+Cores.sucesso("       FENROK FOI DERROTADO!")+"\n========================================");
         System.out.println(TextoService.obter("FENROK_POS","Fenrok foi derrotado."));
@@ -97,6 +118,7 @@ public class JogoController {
         localAtual="ELDORIA";System.out.println(Cores.sucesso("\nO grupo chegou a Eldoria."));Entrada.enter();abrirEldoria();
     }
 
+    // Deixa o jogador gastar os pontos de atributo de cada personagem.
     private void distribuirPontos(){
         for(Personagem p:grupo.getPersonagens())while(p.getPontosAtributo()>0){
             System.out.println("\n=== PONTOS DE ATRIBUTO: "+Cores.nomePersonagem(p.getNome())+" ===");
@@ -108,9 +130,12 @@ public class JogoController {
             else System.out.println(Cores.aviso("Opcao invalida."));
         }
     }
+    // Devolve o valor do atributo conforme a opcao (1 a 6).
     private int valorAtributo(Personagem p,int op){switch(op){case 1:return p.getForca();case 2:return p.getDefesa();case 3:return p.getInteligencia();case 4:return p.getResistencia();case 5:return p.getVelocidade();case 6:return p.getSorte();default:return -1;}}
+    // Devolve o nome do atributo conforme a opcao (1 a 6).
     private String nomeAtributo(int op){switch(op){case 1:return "Forca";case 2:return "Defesa";case 3:return "Inteligencia";case 4:return "Resistencia";case 5:return "Velocidade";case 6:return "Sorte";default:return "Atributo";}}
 
+    // Abre a cidade de Eldoria e verifica se o jogador quer ir para a caverna.
     private void abrirEldoria(){
         localAtual="ELDORIA";
         System.out.println("\n========================================\n               ELDORIA\n========================================");
@@ -121,6 +146,7 @@ public class JogoController {
         if(r.irCaverna)entradaCaverna1();
     }
 
+    // Roda as waves da Caverna dos Slimes (tutorial do jogo).
     private void entradaCaverna1(){
         localAtual="CAVERNA1";
         System.out.println("\n========================================\n          CAVERNA DOS SLIMES\n========================================");
@@ -140,6 +166,7 @@ public class JogoController {
         Entrada.enter();
     }
 
+    // Tela de game over: permite carregar save, voltar ao menu ou sair.
     private void gameOver(){
         while(true){
             System.out.println("\n========================================\n"+Cores.vermelho("             GAME OVER")+"\n========================================");

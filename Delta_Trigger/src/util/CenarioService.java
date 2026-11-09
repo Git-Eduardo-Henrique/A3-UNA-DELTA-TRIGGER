@@ -1,3 +1,9 @@
+// ============================================================
+// ARQUIVO: CenarioService.java
+// Monta os cenarios de batalha (cavernas) e suas waves de inimigos.
+// Aqui ficam definidas a Floresta dos Lobos e a Caverna dos Slimes.
+// ============================================================
+
 package util;
 
 import model.*;
@@ -5,7 +11,13 @@ import java.io.*;
 import java.util.*;
 
 public final class CenarioService {
+
+    // Construtor privado: a classe so tem metodos estaticos.
     private CenarioService() {}
+
+    // Cria uma caverna a partir de uma tabela de waves.
+    // Cada linha da tabela tem: numero da wave, mensagem e a lista
+    // de inimigos no formato "ID:quantidade;ID:quantidade".
     public static Caverna criarCaverna(String id, String nome, String descricao, String[][] waves) {
         Caverna c = new Caverna(id, nome, descricao);
         for (String[] w : waves) {
@@ -20,6 +32,7 @@ public final class CenarioService {
         return c;
     }
 
+    // Cria a Floresta dos Lobos: 5 waves, terminando com o chefe Fenrok.
     public static Caverna florestaDosLobos() {
         return criarCaverna("FLORESTA_LOBOS", "Floresta dos Lobos", "Uma floresta densa onde a alcateia protege seu territorio.", new String[][] {
             {"1", "Tres Lobinhos surgiram!", "LOBINHO:3"},
@@ -30,6 +43,7 @@ public final class CenarioService {
         });
     }
 
+    // Cria a Caverna dos Slimes: 5 waves, terminando com o chefe Gellor.
     public static Caverna cavernaDosSlimes() {
         return criarCaverna("CAVERNA_SLIMES", "Caverna dos Slimes", "Uma caverna umida tomada por criaturas gelatinosas.", new String[][] {
             {"1", "Slimes surgiram!", "SLIME:3"},
